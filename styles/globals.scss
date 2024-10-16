@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap');
+@import './variable';
+
+@font-face {
+  font-family: 'satoshi-light';
+  src: url('/fonts/Satoshi-Light.otf');
+}
+@font-face {
+  font-family: 'satoshi-regular';
+  src: url('/fonts/Satoshi-Regular.otf');
+}
+@font-face {
+  font-family: 'satoshi-medium';
+  src: url('/fonts/Satoshi-Medium.otf');
+}
+@font-face {
+  font-family: 'satoshi-bold';
+  src: url('/fonts/Satoshi-Bold.otf');
+}
+@font-face {
+  font-family: 'satoshi-black';
+  src: url('/fonts/Satoshi-Black.otf');
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+body {
+  height: 100%;
+  width: 100%;
+  font-family: 'satoshi-regular';
+  font-weight: normal;
+  background: $bgBlack;
+  color: $whiteTextPrimary;
+}
+
+input, textarea, button {
+  outline: none;
+  border: none;
+}
+button {
+  cursor: pointer;
+}

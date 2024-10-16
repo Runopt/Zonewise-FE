@@ -1,0 +1,163 @@
+.signup-container {
+  display: flex;
+  background: $bgBlack;
+  color: $whiteTextPrimary;
+  height: 100vh;
+
+  .left-signup-container {
+    flex-basis: 50%;
+    height: 100%;
+    padding: 50px 100px;
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+
+    .logo {
+      color: $whiteTextPrimary;
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 32px;
+      font-style: normal;
+      font-weight: 600;
+      line-height: normal;
+    }
+
+    .form-container {
+      margin: auto 0;
+
+      .form-title {
+        h3 {
+          color: #fff;
+          font-family: 'Inter Tight', sans-serif;
+          font-size: 24px;
+          font-style: normal;
+          font-weight: 600;
+          line-height: normal;
+        }
+        p {
+          color: #f1f1f1;
+          font-family: 'satoshi-regular';
+          font-size: 16px;
+          font-style: normal;
+          line-height: 20px;
+          margin-top: 0.8rem;
+          overflow: hidden;
+
+          a {
+            text-decoration: underline;
+            background: var(
+              --grad,
+              linear-gradient(255deg, #355be0 0%, #b945cc 100%)
+            );
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            // border-bottom: .5px solid $whiteTextPrimary;
+          }
+        }
+      }
+
+      .form {
+        margin-top: 42px;
+
+        .field {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          margin-top: 20px;
+          position: relative;
+        }
+        #password {
+          img {
+            position: absolute;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(50%);
+
+            cursor: pointer;
+          }
+        }
+
+        .agree-terms {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          margin-top: 1rem;
+
+          p {
+            color: #f1f1f1;
+            font-family: 'satoshi-light';
+            font-size: 14px;
+            font-style: normal;
+            line-height: 20px;
+            letter-spacing: -0.14px;
+
+            a {
+              color: $whiteTextPrimary;
+              text-decoration-line: underline;
+            }
+          }
+        }
+        button {
+          margin-top: 54px;
+        }
+      }
+
+      .or {
+        display: flex;
+        align-items: center;
+        gap: 1.5px;
+        margin: 3rem 0;
+        @media (max-width: 600px) {
+          margin-top: 1rem;
+        }
+        .title {
+          font-size: 16px;
+          font-family: 'satoshi-bold';
+          color: $whiteTextPrimary;
+          width: 100px;
+          text-align: center;
+        }
+        .border {
+          width: 100%;
+          height: 0.5px;
+          background: rgba(255, 255, 255, 0.1);
+        }
+      }
+
+      .other-auth-btn {
+        display: flex;
+        gap: 1rem;
+        @media (max-width: 600px) {
+        }
+        button {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 1rem;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: none;
+          border-radius: 8px;
+          width: 100%;
+          height: 54px;
+          font-family: 'satoshi-medium';
+          font-size: 16px;
+          color: $whiteTextPrimary;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+
+  .right-signup-container {
+    flex-basis: 45%;
+    background-image: url(/images/MeshGrid.svg);
+    background-color: rgba(255, 255, 255, 0.05);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    margin: 50px 100px;
+    border-radius: 1rem;
+    margin-left: 0;
+  }
+}

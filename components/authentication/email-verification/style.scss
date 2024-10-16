@@ -1,0 +1,133 @@
+.email-verification-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 50px 100px;
+
+  .logo {
+    color: $whiteTextPrimary;
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+  }
+
+  .form-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    max-width: 680px;
+    margin: auto;
+
+    .back-btn {
+      border: none;
+      outline: none;
+      padding: 0;
+      background: none;
+    }
+
+    .form-title {
+      margin-top: 54px;
+
+      h3 {
+        color: #fff;
+        font-family: 'Inter Tight', sans-serif;
+        font-size: 24px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+      }
+      p {
+        color: #f1f1f1;
+        font-family: 'satoshi-regular';
+        font-size: 16px;
+        font-style: normal;
+        line-height: 20px;
+        margin-top: 0.8rem;
+        overflow: hidden;
+
+        a {
+          text-decoration: underline;
+          background: var(
+            --grad,
+            linear-gradient(255deg, #355be0 0%, #b945cc 100%)
+          );
+          background-clip: text;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          // border-bottom: .5px solid $whiteTextPrimary;
+        }
+      }
+    }
+
+    .form {
+      .otp-input {
+        display: flex;
+        gap: 1rem;
+        width: 100%;
+        margin-top: 56px;
+        max-width: 680px;
+
+        input {
+          min-width: 40px;
+          height: 90px;
+          margin: 0 5px;
+          text-align: center;
+          font-size: 48px;
+          font-weight: 600;
+          color: $whiteTextPrimary;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          background: transparent;
+          border-radius: 4px;
+          transition: all 0.3s linear;
+          &::placeholder {
+            display: none;
+            visibility: hidden;
+          }
+          &:focus {
+            outline: none;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+          }
+        }
+      }
+    }
+
+    .resend-otp {
+        margin: 0 auto;
+      margin-top: 72px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      overflow: hidden;
+
+      @keyframes rotate {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .refresh-icon {
+        animation: rotate 1s infinite linear;
+        overflow: hidden;
+      }
+      p {
+        color: #bfbfbf;
+        font-family: 'satoshi-regular';
+        font-size: 16px;
+      }
+    }
+
+    a {
+      width: 100%;
+    }
+    #verify-btn {
+        margin-top: 2rem;
+        width: 100%;
+    }
+  }
+}

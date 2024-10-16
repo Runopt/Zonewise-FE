@@ -1,0 +1,14 @@
+@import './variable';
+@import '../components/authentication/ui/style.scss';
+
+@import '../components/authentication/signup/style.scss';
+@import '../components/authentication/login/style.scss';
+@import '../components/authentication/email-verification/style.scss';
+
+
+@import '../components/app/home/style.scss';
+@import '../components/app/navbar/style.scss';
+@import '../components/app/welcome-carousel/style.scss';
+
+@import '../components/app/zoning/style.scss';
+@import '../components/app/zoning/data-reference-modal/style.scss';

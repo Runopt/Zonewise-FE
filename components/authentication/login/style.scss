@@ -1,0 +1,14 @@
+.forgot-password {
+  margin-top: 1.5rem;
+  text-align: right;
+  margin-left: auto;
+  max-width: fit-content;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--grad, linear-gradient(255deg, #355be0 0%, #b945cc 100%));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
