@@ -13,7 +13,7 @@ const LeftSignUp = () => {
         <div className="form-title">
           <h3>Create your account</h3>
           <p>
-            Already have an account? <a href="/sign-in">Sign In</a>
+            Already have an account? <a href="/login">Sign In</a>
           </p>
         </div>
 
@@ -24,7 +24,9 @@ const LeftSignUp = () => {
               type="text"
               placeHolder="Enter Company Name"
               value=""
-              name=""
+              name="companyName"
+              defaultValue=""
+              onChange={() => {}}
             />
           </div>
 
@@ -34,14 +36,22 @@ const LeftSignUp = () => {
               type="email"
               placeHolder="Enter Your Email Address"
               value=""
-              name=""
-              // onChange={}
+              name="email"
+              defaultValue=""
+              onChange={() => {}}
             />
           </div>
 
           <div className="field" id="password">
             <Label value="Password" />
-            <Input type="password" placeHolder="" value="" name="" />
+            <Input
+              type="password"
+              placeHolder=""
+              value=""
+              name="password"
+              defaultValue=""
+              onChange={() => {}}
+            />
 
             <img src="../images/icons/view.svg" alt="" />
           </div>

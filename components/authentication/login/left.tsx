@@ -24,14 +24,22 @@ const LeftLogin = () => {
               type="email"
               placeHolder="Enter Your Email Address"
               value=""
-              name=""
+              name="email"
+              defaultValue=""
+              onChange={() => {}}
             />
           </div>
 
           <div className="field" id="password">
             <Label value="Password" />
-            <Input type="password" placeHolder="" value="" name="" />
-
+            <Input 
+              type="password" 
+              placeHolder="" 
+              value="" 
+              name="password" 
+              defaultValue="" 
+              onChange={() => {}} 
+            />
             <img src="../images/icons/view.svg" alt="" />
           </div>
 
