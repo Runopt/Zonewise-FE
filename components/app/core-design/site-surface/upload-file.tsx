@@ -4,6 +4,7 @@ import React, {
   useRef,
   ChangeEvent,
   DragEvent,
+  FormEvent,
 } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
@@ -165,14 +166,15 @@ const UploadFile: React.FC<FileUploadProps> = ({
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async (event: FormEvent) => {
+    event.preventDefault();
     if (!fileName) {
       if (uploadContainerRef.current) {
-         uploadContainerRef.current.classList.add('error-border-dashed');
+        uploadContainerRef.current.classList.add('error-border-dashed');
 
-         setTimeout(() => {
-           uploadContainerRef.current?.classList.remove('error-border-dashed');
-         }, 1000);
+        setTimeout(() => {
+          uploadContainerRef.current?.classList.remove('error-border-dashed');
+        }, 1000);
       }
 
       return;

@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { toast } from 'react-toastify';
-import axios from 'axios';
 
 export type UploadState = {
   fileName: string | null;
@@ -21,29 +20,56 @@ export const createUploadThunk = (config: UploadConfig) => {
   return createAsyncThunk(
     `${config.sliceName}/uploadFile`,
     async (fileName: string, { rejectWithValue }) => {
+    
+      const fileInput = document.querySelector(
+        'input[type="file"]',
+      ) as HTMLInputElement;
+      const file = fileInput?.files?.[0];
+
+      if (!file) {
+        return rejectWithValue('No file selected');
+      }
+
       try {
-        const response = await axios.post(
-          config.apiEndpoint,
-          { fileName },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            
-            onUploadProgress: (progressEvent) => {
-              const percentCompleted = Math.round(
-                (progressEvent.loaded * 100) / (progressEvent.total || 100),
-              );
-            },
+        const arrayBuffer = await new Promise<ArrayBuffer>(
+          (resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+              const result = e.target?.result;
+              if (result instanceof ArrayBuffer) {
+                resolve(result);
+              } else {
+                reject(new Error('Failed to read file as ArrayBuffer'));
+              }
+            };
+
+            reader.onerror = () => {
+              reject(new Error('Failed to read file'));
+            };
+
+            reader.readAsArrayBuffer(file);
           },
         );
 
-        return response.data;
+        const response = await fetch(config.apiEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': file.type || 'application/octet-stream',
+            accept: 'application/json',
+          },
+          body: arrayBuffer,
+        });
+
+        if (!response.ok) {
+          throw new Error(response.statusText || 'Upload failed');
+        }
+
+        const result = await response.json();
+        return result;
       } catch (error) {
-        if (axios.isAxiosError(error)) {
-          return rejectWithValue(
-            error.response?.data?.message || error.message || 'Upload failed',
-          );
+        if (error instanceof Error) {
+          return rejectWithValue(error.message);
         }
         return rejectWithValue('Upload failed');
       }
@@ -94,7 +120,6 @@ export const createUploadSlice = (
         state.error = null;
         state.data = null;
       },
-      // Optional: Add action to update progress
       setProgress: (state, action: PayloadAction<number>) => {
         state.progress = action.payload;
       },
@@ -104,11 +129,13 @@ export const createUploadSlice = (
         .addCase(uploadThunk.pending, (state) => {
           state.status = 'uploading';
           state.error = null;
+          state.progress = 0;
         })
         .addCase(uploadThunk.fulfilled, (state, action) => {
           state.status = 'completed';
           state.progress = 100;
           state.data = action.payload;
+          toast.success('File uploaded successfully');
         })
         .addCase(uploadThunk.rejected, (state, action) => {
           state.status = 'error';
@@ -121,7 +148,7 @@ export const createUploadSlice = (
 
 const siteUploadConfig: UploadConfig = {
   sliceName: 'upload',
-  apiEndpoint: 'https://runopt.onrender.com/upload/site-surface',
+  apiEndpoint: 'http://localhost:8000/upload/site-surface',
 };
 
 export const uploadSiteFile = createUploadThunk(siteUploadConfig);
