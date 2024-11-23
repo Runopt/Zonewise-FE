@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import Navbar from '../navbar';
 import Welcome from '../welcome-carousel';
+import Link from 'next/link';
 
 const HomeContainer = () => {
   const action = [
     {
       id: 0,
+      link: '/core-design',
       icon: '../images/icons/civil.svg',
       title: 'Create Civil Engineer Design',
       desc: 'Zonewise - Intelligent Parking Analysis for Site Designers',
@@ -39,18 +41,21 @@ const HomeContainer = () => {
       coverImg: '../images/coverImg.svg',
       name: 'Project 1',
       description: 'A brief description of Project 1',
+      tag: 'Zoning',
     },
     {
       id: 2,
       coverImg: '../images/coverImg.svg',
       name: 'Project 2',
       description: 'A brief description of Project 2',
+      tag: 'Core Design',
     },
     {
       id: 3,
       coverImg: '../images/coverImg.svg',
       name: 'Project 3',
       description: 'A brief description of Project 2',
+      tag: 'Core Design',
     },
   ];
 
@@ -68,7 +73,11 @@ const HomeContainer = () => {
       <div className="main">
         <div className="home-cta">
           {action.map((cta) => (
-            <div className={cta.className} key={cta.id}>
+            <Link
+              href={cta.link || '/default-link'}
+              key={cta.id}
+              className={cta.className}
+            >
               <div className="icon">
                 <img src={cta.icon} alt={cta.title} />
               </div>
@@ -76,7 +85,7 @@ const HomeContainer = () => {
                 <h5>{cta.title}</h5>
                 <p>{cta.desc}</p>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 
@@ -124,14 +133,14 @@ const HomeContainer = () => {
             <div className="project-list">
               {projects.map((project) => (
                 <div key={project.id} className="project-item">
-                  <img className='cover-img' src={project.coverImg} alt="" />
+                  <img className="cover-img" src={project.coverImg} alt="" />
 
-                  <div className='title'>
+                  <div className="title">
                     <h5>{project.name}</h5>
-                    <div className="tag">Zoning</div>
+                    <div className="tag">{project.tag}</div>
                   </div>
 
-                  <p className='meta-desc'>{project.description}</p>
+                  <p className="meta-desc">{project.description}</p>
                 </div>
               ))}
             </div>

@@ -13,7 +13,7 @@ const LeftLogin = () => {
         <div className="form-title">
           <h3>Sign in to your account</h3>
           <p>
-            Don’t have an account yet?<a href=""> Sign In</a>
+            Don’t have an account yet?<a href="/"> Sign Up</a>
           </p>
         </div>
 

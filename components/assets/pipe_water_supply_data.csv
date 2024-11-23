@@ -1,0 +1,5 @@
+Path_ID,Node_Start,Node_End,Pipe_Length,Pipe_Diameter,Flow_Rate_Start,Flow_Rate_End,Velocity_Start,Velocity_End,Elevation_Start,Elevation_End,Delta_Elevation,Pressure_Start,Pressure_End,Fittings,Minor Head Loss,Pipe Material
+1,"(0, 0, 0)","(2, 2, 2)",3.4641016151377544,0.025,0,0,0,0,0,2,2,0,0,45,0,Copper
+1,"(2, 2, 2)","(4, 4, 4)",3.4641016151377544,0.025,0,0,0,0,2,4,2,0,0,45,0,Copper
+1,"(4, 4, 4)","(6, 6, 6)",3.4641016151377544,0.025,0,0,0,0,4,6,2,0,0,45,0,Copper
+2,"(4, 4, 4)","(6, 6, 5)",3.0,0.025,0,0,0,0,4,5,1,0,0,45,0,Copper

@@ -13,7 +13,7 @@ const LeftSignUp = () => {
         <div className="form-title">
           <h3>Create your account</h3>
           <p>
-            Don’t have an account yet? <a href="">Sign Up</a>
+            Already have an account? <a href="/sign-in">Sign In</a>
           </p>
         </div>
 
@@ -35,6 +35,7 @@ const LeftSignUp = () => {
               placeHolder="Enter Your Email Address"
               value=""
               name=""
+              // onChange={}
             />
           </div>
 

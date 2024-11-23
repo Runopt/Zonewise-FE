@@ -12,3 +12,22 @@
 
 @import '../components/app/zoning/style.scss';
 @import '../components/app/zoning/data-reference-modal/style.scss';
+
+@import '../components/app/core-design/style.scss';
+
+
+@import '../components/app/core-design/site-surface/style.scss';
+@import '../components/app/core-design/site-surface/building-information/style.scss';
+@import '../components/app/core-design/site-surface/plot-graph/style.scss';
+@import '../components/app/core-design/site-surface/plot-buildings/style.scss';
+@import '../components/app/core-design/site-surface/export-data/style.scss';
+
+@import '../components/app/core-design/slope-stability/style.scss';
+
+@import '../components/app/core-design/pipe-system/style.scss';
+@import '../components/app/core-design/pipe-system/node/style.scss';
+@import '../components/app/core-design/pipe-system/3d-visualization/style.scss';
+
+@import '../components/app/core-design/water-supply/style.scss';
+@import '../components/app/core-design/water-supply/path-number/style.scss';
+@import '../components/app/core-design/water-supply/final-data/style.scss';

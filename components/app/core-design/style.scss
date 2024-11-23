@@ -1,0 +1,87 @@
+$scrollbar-bg: #1a1a1a;
+$scrollbar-thumb: #555;
+$scrollbar-thumb-hover: #888;
+$scrollbar-width: 8px;
+$secondaryTextColor: #949494;
+
+.core-design-container {
+  display: flex;
+  flex-direction: column;
+  background: rgba(253, 227, 227, 0.02);
+  position: relative;
+  height: calc(100vh - 90px);
+  margin-top: 90px;
+//   overflow: hidden;
+
+  .main {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: calc(100vh - 200px);
+    margin: 0;
+    padding: 50px 50px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+
+    .functions {
+      display: flex;
+      gap: 1rem;
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 20px;
+      background: #191919;
+      background: var(
+        --grad,
+        linear-gradient(
+          255deg,
+          hsla(227, 73%, 54%, 0.1) 0%,
+          rgba(185, 69, 204, 0.1) 100%
+        )
+      );
+      box-shadow: 0 2px 5px rgba(20, 20, 20, 0.5),
+        0 2px 4px rgba(48, 48, 48, 0.3);
+      height: 64px;
+      border-radius: 64px;
+      padding: 10px;
+      overflow: hidden;
+      z-index: 11;
+
+      .function {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        line-height: normal;
+        cursor: pointer;
+        padding: 0.5rem 0.5rem;
+        transition: all 0.2s linear;
+
+        img {
+          width: 16px;
+          height: 16px;
+        }
+        .title {
+          font-size: 14px;
+        }
+
+        &.active {
+          background: rgba(255, 255, 255, 0.05);
+          padding: 0.5rem 1.5rem;
+          border-radius: 64px;
+        }
+      }
+    }
+
+    .content {
+      min-height: calc(100vh - 90px);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      width: 100%;
+    }
+  }
+}

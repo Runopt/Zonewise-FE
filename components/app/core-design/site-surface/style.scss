@@ -1,0 +1,254 @@
+.site-surface-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 50px;
+  margin-bottom: 120px;
+  height: 100%;
+
+  .upload-file {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    max-width: 700px;
+    height: 100%;
+    overflow: hidden;
+
+    .upload-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 80px 0;
+      width: 100%;
+      background: #000;
+      border: 1px dashed #355ae062;
+      border-radius: 1rem;
+      cursor: pointer;
+
+      input {
+        display: none;
+      }
+      .title {
+        font-size: 20px;
+        font-family: 'satoshi-bold';
+        margin-top: 1.5rem;
+      }
+      p {
+        margin-top: 0.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        align-items: center;
+        color: #a7a7a7;
+      }
+    }
+
+    .upload-container.error-border-dashed {
+      border: 1px dashed #d62634;
+      animation: shake 0.5s;
+    }
+
+    @keyframes shake {
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+      10%,
+      30%,
+      50%,
+      70%,
+      90% {
+        transform: translateX(-5px);
+      }
+      20%,
+      40%,
+      60%,
+      80% {
+        transform: translateX(5px);
+      }
+    }
+
+    .file-requirement {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.8rem;
+
+      p {
+        font-size: 14px;
+
+        color: #949494;
+      }
+    }
+
+    .download-template {
+      margin-top: 3rem;
+      background: #1a1a1a99;
+      padding: 1rem;
+      border-radius: 1rem;
+      display: flex;
+
+      .file-icon {
+        width: 24px;
+        margin-bottom: auto;
+        margin-right: 1rem;
+        margin-top: 0.5rem;
+      }
+      .text {
+        max-width: 450px;
+
+        .title {
+          font-size: 16px;
+          font-family: 'satoshi-medium';
+          color: #e0e1e5;
+        }
+        .desc {
+          margin-top: 2px;
+          font-size: 14px;
+          font-family: 'satoshi-light';
+          color: #949494;
+        }
+      }
+      button {
+        margin: auto 0;
+        margin-left: auto;
+        border: 1px solid #ffffff1c;
+        background: #0d0d0d;
+        padding: 0 0.5rem;
+        height: 42px;
+        border-radius: 6px;
+
+        a {
+          text-decoration: none;
+          font-family: 'satoshi-light';
+          color: #fff;
+        }
+      }
+    }
+
+    .uploaded-file {
+      margin-top: 3rem;
+      background: #1a1a1a99;
+      padding: 1rem;
+      border-radius: 1rem;
+      display: flex;
+
+      .file-icon {
+        width: 24px;
+        margin-bottom: auto;
+        margin-top: 0.5rem;
+        margin-right: 1rem;
+      }
+      .text {
+        max-width: 400px;
+
+        .title {
+          font-size: 16px;
+          font-family: 'satoshi-medium';
+          color: #e0e1e5;
+        }
+        .metadata {
+          margin-top: 2px;
+          font-size: 14px;
+          font-family: 'satoshi-light';
+          color: #949494;
+        }
+      }
+      button {
+        margin: auto 0;
+        margin-left: auto;
+        border: none;
+        background: none;
+        width: 42px;
+        height: 42px;
+        border-radius: 42px;
+        border-radius: 6px;
+      }
+    }
+  }
+
+  .cta {
+    margin-top: 4rem;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+
+    button {
+      padding: 8px 24px;
+      border-radius: 4px;
+      color: #fff;
+      text-align: center;
+      height: 42px;
+      font-size: 16px;
+      font-style: normal;
+      line-height: normal;
+
+      &#prev {
+        background: rgba(255, 255, 255, 0.1);
+      }
+      &#next {
+        background: var(--grad);
+        background: linear-gradient(255deg, #355be0 0%, #b945cc 100%);
+
+        img {
+          margin: auto;
+          -webkit-animation-name: spin;
+          -webkit-animation-duration: 2000ms;
+          -webkit-animation-iteration-count: infinite;
+          -webkit-animation-timing-function: linear;
+          -moz-animation-name: spin;
+          -moz-animation-duration: 2000ms;
+          -moz-animation-iteration-count: infinite;
+          -moz-animation-timing-function: linear;
+          -ms-animation-name: spin;
+          -ms-animation-duration: 2000ms;
+          -ms-animation-iteration-count: infinite;
+          -ms-animation-timing-function: linear;
+
+          animation-name: spin;
+          animation-duration: 2000ms;
+          animation-iteration-count: infinite;
+          animation-timing-function: linear;
+        }
+        @-ms-keyframes spin {
+          from {
+            -ms-transform: rotate(0deg);
+          }
+          to {
+            -ms-transform: rotate(360deg);
+          }
+        }
+        @-moz-keyframes spin {
+          from {
+            -moz-transform: rotate(0deg);
+          }
+          to {
+            -moz-transform: rotate(360deg);
+          }
+        }
+        @-webkit-keyframes spin {
+          from {
+            -webkit-transform: rotate(0deg);
+          }
+          to {
+            -webkit-transform: rotate(360deg);
+          }
+        }
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      }
+    }
+    button.disabled {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+  }
+}
