@@ -1,13 +1,13 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { toast } from 'react-toastify';
+import axios, { AxiosProgressEvent } from 'axios';
 
-// Generic type for file upload configuration
+
 interface UploadConfig {
   apiEndpoint: string;
   additionalData?: Record<string, any>;
   sliceName: string;
 }
-
 
 type UploadState = {
   fileName: string | null;
@@ -19,38 +19,45 @@ type UploadState = {
   data: any | null;
 };
 
-
 export const createUploadThunk = (config: UploadConfig) => {
   return createAsyncThunk(
     `${config.sliceName}/uploadFile`,
     async (fileName: string, { rejectWithValue }) => {
       try {
-        const response = await fetch(config.apiEndpoint, {
-          method: 'POST',
+        const requestData = {
+          fileName,
+          ...config.additionalData,
+        };
+
+        const response = await axios.post(config.apiEndpoint, requestData, {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ fileName }),
+          onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / (progressEvent.total || 100),
+            );
+
+            // dispatch(setSlopeProgress(percentCompleted));
+          },
         });
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(errorText || 'Upload failed');
-        }
-        return await response.json();
+        return response.data;
       } catch (error) {
-        return rejectWithValue(
-          error instanceof Error ? error.message : 'Upload failed',
-        );
+        if (axios.isAxiosError(error)) {
+          const errorMessage =
+            error.response?.data?.message || error.message || 'Upload failed';
+          return rejectWithValue(errorMessage);
+        }
+        return rejectWithValue('An unexpected error occurred during upload');
       }
     },
   );
 };
 
-
 export const createUploadSlice = (
   config: UploadConfig,
-  uploadThunk: ReturnType<typeof createAsyncThunk<string, string>>,
+  uploadThunk: ReturnType<typeof createAsyncThunk>,
 ) => {
   const initialState: UploadState = {
     fileName: null,
@@ -83,13 +90,10 @@ export const createUploadSlice = (
         state.data = null;
       },
       resetUpload: (state) => {
-        state.fileName = null;
-        state.fileSize = null;
-        state.fileType = null;
-        state.progress = 0;
-        state.status = 'idle';
-        state.error = null;
-        state.data = null;
+        Object.assign(state, initialState);
+      },
+      setProgress: (state, action: PayloadAction<number>) => {
+        state.progress = action.payload;
       },
     },
     extraReducers: (builder) => {
@@ -102,6 +106,7 @@ export const createUploadSlice = (
           state.status = 'completed';
           state.progress = 100;
           state.data = action.payload;
+          toast.success('File uploaded successfully');
         })
         .addCase(uploadThunk.rejected, (state, action) => {
           state.status = 'error';
@@ -112,18 +117,27 @@ export const createUploadSlice = (
   });
 };
 
+
 const slopeUploadConfig: UploadConfig = {
   sliceName: 'uploadSlopeFile',
   apiEndpoint: '/api/upload-slope-data',
+  additionalData: {
+
+  },
 };
+
 
 export const uploadSlopeFile = createUploadThunk(slopeUploadConfig);
 export const uploadSlopeFileSlice = createUploadSlice(
   slopeUploadConfig,
-  uploadSlopeFile,
+  uploadSlopeFile as ReturnType<typeof createAsyncThunk>,
 );
 
 
-export const { setFile: setSlopeFile, resetUpload: resetSlopeUpload } =
-  uploadSlopeFileSlice.actions;
+export const {
+  setFile: setSlopeFile,
+  resetUpload: resetSlopeUpload,
+  setProgress: setSlopeProgress,
+} = uploadSlopeFileSlice.actions;
+
 export const slopeUploadReducer = uploadSlopeFileSlice.reducer;

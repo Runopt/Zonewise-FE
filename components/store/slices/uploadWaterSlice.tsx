@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { toast } from 'react-toastify';
+import axios, { AxiosProgressEvent } from 'axios';
 
 interface UploadConfig {
   apiEndpoint: string;
@@ -22,32 +23,40 @@ export const createUploadThunk = (config: UploadConfig) => {
     `${config.sliceName}/uploadFile`,
     async (fileName: string, { rejectWithValue }) => {
       try {
-        const response = await fetch(config.apiEndpoint, {
-          method: 'POST',
+        const requestData = {
+          fileName,
+          ...config.additionalData,
+        };
+
+        const response = await axios.post(config.apiEndpoint, requestData, {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ fileName }),
+          onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+            const totalSize = progressEvent.total || progressEvent.loaded;
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / totalSize,
+            );
+            // dispatch(setWaterProgress(percentCompleted));
+          },
         });
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(errorText || 'Upload failed');
-        }
-        return await response.json();
+        return response.data;
       } catch (error) {
-        return rejectWithValue(
-          error instanceof Error ? error.message : 'Upload failed',
-        );
+        if (axios.isAxiosError(error)) {
+          const errorMessage =
+            error.response?.data?.message || error.message || 'Upload failed';
+          return rejectWithValue(errorMessage);
+        }
+        return rejectWithValue('An unexpected error occurred during upload');
       }
     },
   );
 };
 
-// Generic upload slice creator
 export const createUploadSlice = (
   config: UploadConfig,
-  uploadThunk: ReturnType<typeof createAsyncThunk<string, string>>,
+  uploadThunk: ReturnType<typeof createAsyncThunk>,
 ) => {
   const initialState: UploadState = {
     fileName: null,
@@ -80,13 +89,10 @@ export const createUploadSlice = (
         state.data = null;
       },
       resetUpload: (state) => {
-        state.fileName = null;
-        state.fileSize = null;
-        state.fileType = null;
-        state.progress = 0;
-        state.status = 'idle';
-        state.error = null;
-        state.data = null;
+        Object.assign(state, initialState);
+      },
+      setProgress: (state, action: PayloadAction<number>) => {
+        state.progress = action.payload;
       },
     },
     extraReducers: (builder) => {
@@ -94,33 +100,43 @@ export const createUploadSlice = (
         .addCase(uploadThunk.pending, (state) => {
           state.status = 'uploading';
           state.error = null;
+          state.progress = 0;
         })
         .addCase(uploadThunk.fulfilled, (state, action) => {
           state.status = 'completed';
           state.progress = 100;
           state.data = action.payload;
+          toast.success('Water data file uploaded successfully');
         })
         .addCase(uploadThunk.rejected, (state, action) => {
           state.status = 'error';
           state.error = action.payload as string;
-          toast.error(state.error || 'File upload failed');
+          state.progress = 0;
+          toast.error(state.error || 'Water data file upload failed');
         });
     },
   });
 };
 
+// Configuration for water data upload
 const waterUploadConfig: UploadConfig = {
   sliceName: 'uploadWaterFile',
   apiEndpoint: '/api/upload-water-data',
+  additionalData: {},
 };
 
+// Create the upload thunk and slice
 export const uploadWaterFile = createUploadThunk(waterUploadConfig);
 export const uploadWaterFileSlice = createUploadSlice(
   waterUploadConfig,
-  uploadWaterFile,
+  uploadWaterFile as ReturnType<typeof createAsyncThunk>,
 );
 
+// Export actions and reducer
+export const {
+  setFile: setWaterFile,
+  resetUpload: resetWaterUpload,
+  setProgress: setWaterProgress,
+} = uploadWaterFileSlice.actions;
 
-export const { setFile: setWaterFile, resetUpload: resetWaterUpload } =
-  uploadWaterFileSlice.actions;
 export const waterUploadReducer = uploadWaterFileSlice.reducer;

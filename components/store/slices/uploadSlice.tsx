@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { toast } from 'react-toastify';
+import axios from 'axios';
 
 export type UploadState = {
   fileName: string | null;
@@ -11,7 +12,6 @@ export type UploadState = {
   data: any | null;
 };
 
-// Configuration interface for upload
 export interface UploadConfig {
   sliceName: string;
   apiEndpoint: string;
@@ -22,23 +22,30 @@ export const createUploadThunk = (config: UploadConfig) => {
     `${config.sliceName}/uploadFile`,
     async (fileName: string, { rejectWithValue }) => {
       try {
-        const response = await fetch(config.apiEndpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+        const response = await axios.post(
+          config.apiEndpoint,
+          { fileName },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            
+            onUploadProgress: (progressEvent) => {
+              const percentCompleted = Math.round(
+                (progressEvent.loaded * 100) / (progressEvent.total || 100),
+              );
+            },
           },
-          body: JSON.stringify({ fileName }),
-        });
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(errorText || 'Upload failed');
-        }
-        return await response.json();
-      } catch (error) {
-        return rejectWithValue(
-          error instanceof Error ? error.message : 'Upload failed',
         );
+
+        return response.data;
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          return rejectWithValue(
+            error.response?.data?.message || error.message || 'Upload failed',
+          );
+        }
+        return rejectWithValue('Upload failed');
       }
     },
   );
@@ -87,6 +94,10 @@ export const createUploadSlice = (
         state.error = null;
         state.data = null;
       },
+      // Optional: Add action to update progress
+      setProgress: (state, action: PayloadAction<number>) => {
+        state.progress = action.payload;
+      },
     },
     extraReducers: (builder) => {
       builder
@@ -110,7 +121,7 @@ export const createUploadSlice = (
 
 const siteUploadConfig: UploadConfig = {
   sliceName: 'upload',
-  apiEndpoint: '/api/upload-site-data',
+  apiEndpoint: 'https://runopt.onrender.com/upload/site-surface',
 };
 
 export const uploadSiteFile = createUploadThunk(siteUploadConfig);
@@ -119,7 +130,10 @@ export const uploadSlice = createUploadSlice(
   uploadSiteFile as ReturnType<typeof createAsyncThunk>,
 );
 
-export const { setFile: setSiteFile, resetUpload: resetSiteUpload } =
-  uploadSlice.actions;
+export const {
+  setFile: setSiteFile,
+  resetUpload: resetSiteUpload,
+  setProgress: setSiteProgress,
+} = uploadSlice.actions;
 
 export const siteUploadReducer = uploadSlice.reducer;
