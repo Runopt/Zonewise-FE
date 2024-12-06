@@ -3,7 +3,6 @@ import dynamic from 'next/dynamic';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/components/store/store';
 
-// Dynamically import Plotly with SSR disabled
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
 interface ThreeDVisualizatiaonProps {
@@ -48,7 +47,6 @@ const ThreeDVisualizatiaon: React.FC<ThreeDVisualizatiaonProps> = ({
           <Plot
             data={plotlyData.data}
             layout={{
-              // ...plotData.layout,
               title: '3D Pipe Design Visualization',
               width: 800,
               height: 600,

@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useSelector } from 'react-redux';
 import dynamic from 'next/dynamic';
-import { selectUploadSessionId } from '@/components/store/slices/uploadSlice'; // Import from your upload slice
 
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
@@ -25,25 +23,12 @@ const PlotGraph: React.FC<PlotGraphProps> = ({ onBack, onNext }) => {
   const tbodyRef = useRef<HTMLTableSectionElement>(null);
   const currentIndexRef = useRef(INITIAL_LOAD);
 
-  // Get the upload session ID from Redux store
-  const uploadSessionId = useSelector(selectUploadSessionId);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (!uploadSessionId) {
-          console.warn('No upload session ID found');
-          return;
-        }
-
-        // Fetch the uploaded file data using the session ID
-        const response = await fetch(`/api/get-upload/${uploadSessionId}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch uploaded file');
-        }
+        const response = await fetch('../assets/3d_scatter_plot.json');
         const jsonData = await response.json();
 
-        // Process the data similar to previous implementation
         const enhancedChartData = {
           data: jsonData.data.map((trace: any) => ({
             ...trace,
@@ -115,14 +100,13 @@ const PlotGraph: React.FC<PlotGraphProps> = ({ onBack, onNext }) => {
         setData(extractedData);
         setDisplayData(extractedData.slice(0, INITIAL_LOAD));
       } catch (error) {
-        console.error('Error fetching or processing uploaded data:', error);
+        console.error('Error fetching or processing data:', error);
       }
     };
 
     fetchData();
-  }, [uploadSessionId]);
+  }, []);
 
-  // Rest of the component remains the same as in the original implementation
   const loadMoreData = () => {
     if (isLoading || currentIndexRef.current >= data.length) return;
 
@@ -160,7 +144,6 @@ const PlotGraph: React.FC<PlotGraphProps> = ({ onBack, onNext }) => {
     }
   }, [data]);
 
-  // Render logic remains the same
   return (
     <div className="plot-graph-container">
       <div className="main-content">
@@ -178,6 +161,7 @@ const PlotGraph: React.FC<PlotGraphProps> = ({ onBack, onNext }) => {
             />
           ) : (
             <div className="plot-graph-graph-loading">
+              {' '}
               <img src="../../images/icons/loading.svg" alt="Loading..." />
             </div>
           )}

@@ -49,7 +49,7 @@ export const createUploadThunk = (config: UploadConfig) => {
             body: formData,
           });
 
-          console.log('Upload Response:', response); // Console log the response
+          console.log('Upload Response:', response);
 
           if (!response.ok) {
             const errorData = await response.json().catch(() => null);

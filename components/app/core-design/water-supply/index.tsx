@@ -25,14 +25,16 @@ const WaterSupply = () => {
   return (
     <div className="site-surface-container">
       {currentStep === 1 && (
-        <UploadFile fileTypes={['.csv', '.xlsx']} onNext={handleNext} />
+        <UploadFile
+          fileTypes={['.csv', '.xlsx']}
+          onNext={handleNext}
+          onBack={handleBack}
+        />
       )}
       {currentStep === 2 && (
         <PathNumber onBack={handleBack} onNext={handleNext} />
       )}
-      {currentStep === 3 && (
-        <FinalDataFrame onBack={handleBack} />
-      )}
+      {currentStep === 3 && <FinalDataFrame onBack={handleBack} />}
     </div>
   );
 };

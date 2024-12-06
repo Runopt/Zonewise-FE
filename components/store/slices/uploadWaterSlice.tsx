@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { toast } from 'react-toastify';
 
-
 interface UploadConfig {
   apiEndpoint: string;
   additionalData?: Record<string, any>;
@@ -17,13 +16,14 @@ type UploadState = {
   error: string | null;
   data: any | null;
 };
+
 interface UploadResponse {
-  message?: string,
-  unique_path_count?: number
+  message?: string;
+  unique_path_count?: number;
 }
 
 export const createUploadThunk = (config: UploadConfig) => {
-  return createAsyncThunk<UploadResponse, string>(
+  return createAsyncThunk<UploadResponse, string, { rejectValue: string }>(
     `${config.sliceName}/uploadFile`,
     async (fileName: string, { dispatch, rejectWithValue }) => {
       try {
@@ -38,7 +38,6 @@ export const createUploadThunk = (config: UploadConfig) => {
 
         const formData = new FormData();
         formData.append('file', file);
-
 
         if (config.additionalData) {
           Object.entries(config.additionalData).forEach(([key, value]) => {
@@ -82,7 +81,7 @@ export const createUploadThunk = (config: UploadConfig) => {
 
 export const createUploadSlice = (
   config: UploadConfig,
-  uploadThunk: ReturnType<typeof createAsyncThunk>,
+  uploadThunk: ReturnType<typeof createUploadThunk>,
 ) => {
   const initialState: UploadState = {
     fileName: null,
@@ -163,7 +162,7 @@ const waterUploadConfig: UploadConfig = {
 export const uploadWaterFile = createUploadThunk(waterUploadConfig);
 export const uploadWaterFileSlice = createUploadSlice(
   waterUploadConfig,
-  uploadWaterFile as ReturnType<typeof createAsyncThunk>,
+  uploadWaterFile,
 );
 
 export const {

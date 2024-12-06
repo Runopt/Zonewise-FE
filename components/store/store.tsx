@@ -44,17 +44,17 @@ const persistConfig = {
   storage,
 
   whitelist: [
-    'node',
-    'upload',
-    'path',
-    'uploadPipeFile',
-    'uploadSlopeFile',
-    'uploadWaterFile',
+    // 'node',
+    // 'upload',
+    // 'path',
+    // 'uploadPipeFile',
+    // 'uploadSlopeFile',
+    // 'uploadWaterFile',
 
-    'siteSurfaceStepper',
-    'pipeSystemStepper',
-    'waterSupplyStepper',
-    'siteSurfaceStepper',
+    // 'siteSurfaceStepper',
+    // 'pipeSystemStepper',
+    // 'waterSupplyStepper',
+    // 'siteSurfaceStepper',
   ],
 };
 

@@ -36,6 +36,7 @@ export interface UploadState {
   progress: number;
   status: 'idle' | 'uploading' | 'completed' | 'error';
   error: string | null;
+  data: any
 }
 export interface UploadStatePipe {
   file: File | null;
