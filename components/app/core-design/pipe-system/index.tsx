@@ -22,13 +22,20 @@ const PipeSystem = () => {
   const handleBack = () => {
     dispatch(pipeSystemPreviousStep());
   };
+
   return (
     <div className="site-surface-container">
       {currentStep === 1 && (
         <UploadFile onBack={handleBack} onNext={handleNext} />
       )}
       {currentStep === 2 && <Node onBack={handleBack} onNext={handleNext} />}
-      {currentStep === 3 && <ThreeDVisualizatiaon onBack={handleBack} onNext={handleNext} />}
+      {currentStep === 3 && (
+        <ThreeDVisualizatiaon
+          onBack={handleBack}
+          onNext={handleNext}
+
+        />
+      )}
     </div>
   );
 };

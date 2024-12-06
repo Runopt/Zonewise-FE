@@ -1,0 +1,40 @@
+.final-data-wrapper {
+    min-width: 100%;
+  overflow-x: auto !important;
+}
+
+.final-data {
+  width: 100%;
+  margin: auto 0;
+  display: flex;
+  align-items: flex-start;
+  //   overflow-x: scroll !important;
+
+  table {
+    // width: 100%;
+    // border-collapse: collapse;
+    height: 100px;
+
+    th {
+      color: #fff;
+      font-size: 16px;
+    }
+
+    th,
+    td {
+      padding: 5px 1rem;
+      text-align: left;
+    }
+
+    thead {
+      background-color: #101010;
+      color: #fff;
+    }
+
+    tbody {
+      tr:nth-child(even) {
+        background-color: #ffffff10;
+      }
+    }
+  }
+}

@@ -44,8 +44,7 @@ const UploadFile: React.FC<FileUploadProps> = ({
   const { fileName, fileSize, fileType, status, progress, error } = useSelector(
     (state: RootState) => state.uploadSlopeFile,
   );
-  // dispatch(setPipeFile(...));
-  // dispatch(uploadPipeFile(...));
+
 
   useEffect(() => {
     if (fileName && uploadContainerRef.current) {
@@ -188,6 +187,12 @@ const UploadFile: React.FC<FileUploadProps> = ({
     }
   };
 
+    useEffect(() => {
+      if (status === 'completed') {
+        onNext?.();
+      }
+    }, [status, onNext]);
+
   return (
     <div className="upload-file">
       <ToastContainer position="top-right" autoClose={5000} />
@@ -204,6 +209,7 @@ const UploadFile: React.FC<FileUploadProps> = ({
       >
         <input
           type="file"
+          name='file'
           ref={fileInputRef}
           onChange={handleFileInput}
           accept=".csv, .xlsx"
@@ -244,7 +250,6 @@ const UploadFile: React.FC<FileUploadProps> = ({
         </div>
       )}
 
-      {/* Uploaded File Information (Conditional) */}
       {fileName && (
         <div className="uploaded-file">
           <img

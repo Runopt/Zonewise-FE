@@ -16,22 +16,26 @@ export interface BuildingState {
   error: string | null;
 }
 
-
 export const submitBuildings = createAsyncThunk(
-  'building/submitBuildings',
-  async (buildings: Building[], { rejectWithValue }) => {
+  'buildings/submitBuildings',
+  async (payload: URLSearchParams, { rejectWithValue }) => {
     try {
-      const response = await axios.post('/api/buildings', { buildings });
-
+      const response = await axios.post(
+        'http://54.90.88.209:8000/upload/building-info',
+        payload.toString(),
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            accept: 'application/json',
+          },
+        },
+      );
       return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const errorMessage =
-          error.response?.data?.message || 'Failed to submit buildings';
-
-        return rejectWithValue(errorMessage);
-      }
-      return rejectWithValue('An unexpected error occurred');
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.detail || error.message || 'Unknown error';
+      console.error('Error in submitBuildings:', errorMessage);
+      return rejectWithValue(errorMessage);
     }
   },
 );
@@ -49,80 +53,75 @@ export const buildingSlice = createSlice({
   initialState,
   reducers: {
     addBuilding: (state, action: PayloadAction<Building>) => {
-  
+      const { name, length, width } = action.payload;
+      const trimmedName = name.trim().toLowerCase();
+
       const isDuplicate = state.buildings.some(
-        (building) =>
-          building.name.toLowerCase() === action.payload.name.toLowerCase(),
+        (building) => building.name.trim().toLowerCase() === trimmedName,
       );
 
       if (isDuplicate) {
-        toast.error(
-          'A building with this name already exists. Please use a unique name.',
-        );
-        state.error =
-          'A building with this name already exists. Please use a unique name.';
-        return;
+        toast.error('A building with this name already exists.');
+        state.error = 'A building with this name already exists.';
+        return state;
       }
 
-    
-      const { name, length, width } = action.payload;
       if (!name.trim() || !length.trim() || !width.trim()) {
-        toast.error('All building details must be filled in');
-        state.error = 'All building details must be filled in';
-        return;
+        toast.error('All building details must be filled in.');
+        state.error = 'All building details must be filled in.';
+        return state;
       }
 
-      
       state.buildings.push(action.payload);
-      toast.success('Building added successfully');
+      toast.success('Building added successfully.');
       state.error = null;
+      return state;
     },
     updateBuilding: (
       state,
       action: PayloadAction<{ index: number; building: Building }>,
     ) => {
       const { index, building } = action.payload;
-
+      const { name, length, width } = building;
+      const trimmedName = name.trim().toLowerCase();
 
       const isDuplicate = state.buildings.some(
-        (b, i) =>
-          i !== index && b.name.toLowerCase() === building.name.toLowerCase(),
+        (b, i) => i !== index && b.name.trim().toLowerCase() === trimmedName,
       );
 
       if (isDuplicate) {
-        toast.error(
-          'A building with this name already exists. Please use a unique name.',
-        );
-        state.error =
-          'A building with this name already exists. Please use a unique name.';
-        return;
+        toast.error('A building with this name already exists.');
+        state.error = 'A building with this name already exists.';
+        return state;
       }
 
-      // Validate inputs
-      const { name, length, width } = building;
       if (!name.trim() || !length.trim() || !width.trim()) {
-        toast.error('All building details must be filled in');
-        state.error = 'All building details must be filled in';
-        return;
+        toast.error('All building details must be filled in.');
+        state.error = 'All building details must be filled in.';
+        return state;
       }
 
       state.buildings[index] = building;
-      toast.success('Building updated successfully');
+      toast.success('Building updated successfully.');
       state.error = null;
+      return state;
     },
     deleteBuilding: (state, action: PayloadAction<number>) => {
       state.buildings = state.buildings.filter((_, i) => i !== action.payload);
-      toast.success('Building deleted successfully');
+      toast.success('Building deleted successfully.');
       state.error = null;
+      return state;
     },
     setEditingBuilding: (state, action: PayloadAction<number | null>) => {
       state.editingIndex = action.payload;
       state.currentBuilding =
         action.payload !== null ? state.buildings[action.payload] : null;
+      return state;
     },
     resetBuildingState: (state) => {
       state.status = 'idle';
       state.error = null;
+      return state;
     },
   },
   extraReducers: (builder) => {
@@ -130,18 +129,30 @@ export const buildingSlice = createSlice({
       .addCase(submitBuildings.pending, (state) => {
         state.status = 'loading';
         state.error = null;
-        toast.loading('Submitting buildings...');
-      })
-      .addCase(submitBuildings.fulfilled, (state, action) => {
-        state.status = 'succeeded';
         toast.dismiss();
-        toast.success('Buildings submitted successfully');
+        toast.info('Submitting buildings...', {
+          toastId: 'building-submission',
+          isLoading: true,
+        });
+        return state;
+      })
+      .addCase(submitBuildings.fulfilled, (state) => {
+        state.status = 'succeeded';
+        state.error = null;
+        toast.dismiss('building-submission');
+        toast.success('Buildings submitted successfully.');
+        return state;
       })
       .addCase(submitBuildings.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload as string;
-        toast.dismiss();
-        toast.error(action.payload as string);
+        toast.dismiss('building-submission');
+        toast.error(
+          action.payload
+            ? `Submission failed: ${action.payload}`
+            : 'Failed to submit buildings.',
+        );
+        return state;
       });
   },
 });

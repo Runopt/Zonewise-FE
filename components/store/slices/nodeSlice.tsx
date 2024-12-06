@@ -15,6 +15,12 @@ interface NodeState {
   error: string | null;
   apiEndpoint: string;
   isValid: boolean;
+  responseData?: {
+    message: string;
+    total_price: number;
+    plot: string;
+    paths: number[][][];
+  };
 }
 
 const initialState: NodeState = {
@@ -22,7 +28,7 @@ const initialState: NodeState = {
   useNodes: [{ x: null, y: null, z: null }],
   status: 'idle',
   error: null,
-  apiEndpoint: 'https://your-api-endpoint.com/nodes',
+  apiEndpoint: 'http://54.90.88.209:8000/upload/select-nodes',
   isValid: false,
 };
 
@@ -48,7 +54,6 @@ const validateNodeData = (
   return { isValid: true, error: null };
 };
 
-// Async thunk for submitting nodes
 export const submitNodes = createAsyncThunk(
   'node/submitNodes',
   async (_, { getState, rejectWithValue }) => {
@@ -60,11 +65,20 @@ export const submitNodes = createAsyncThunk(
       return rejectWithValue(error);
     }
 
+    const payload = {
+      supply_node: [supplyNode.x, supplyNode.y, supplyNode.z],
+      use_nodes: useNodes.map((node) => [node.x, node.y, node.z]),
+    };
+
     try {
-      const response = await axios.post(apiEndpoint, {
-        supplyNode,
-        useNodes,
+      const response = await axios.post(apiEndpoint, payload, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
+
+      // Console log the response
+      console.log('API Response:', response.data);
 
       return response.data;
     } catch (error) {
@@ -102,7 +116,6 @@ export const nodeSlice = createSlice({
       );
       state.isValid = isValid;
       state.error = error;
-    //   toast.info('New use node added');
     },
 
     updateUseNode: (
@@ -135,11 +148,9 @@ export const nodeSlice = createSlice({
         );
         state.isValid = isValid;
         state.error = error;
-        // toast.success('Node deleted successfully');
       } else {
         state.error = 'Invalid node index';
         state.isValid = false;
-        // toast.error('Error deleting node');
       }
     },
 
@@ -165,9 +176,10 @@ export const nodeSlice = createSlice({
         state.error = null;
         toast.loading('Submitting nodes...');
       })
-      .addCase(submitNodes.fulfilled, (state) => {
+      .addCase(submitNodes.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.error = null;
+        state.responseData = action.payload;
         toast.dismiss();
         toast.success('Nodes submitted successfully');
       })

@@ -5,11 +5,13 @@ interface ExportDataProps {
 }
 const ExportData: React.FC<ExportDataProps> = ({ onBack, onNext }) => {
   return (
-    <div className='export-data-container'>
-      ExportData
+    <div className='export-data-container visualization-container'>
+     <div className="export-data">
+
+     </div>
       <div className="cta">
-        <button id="prev">Make changes</button>
-        <button>Confirm layout</button>
+        <button id="prev" onClick={onBack}>Make changes</button>
+        <button id='next' onClick={onNext}>Export data</button>
       </div>
     </div>
   );

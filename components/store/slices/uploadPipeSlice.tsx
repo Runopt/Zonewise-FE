@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { toast } from 'react-toastify';
-import axios, { AxiosProgressEvent } from 'axios';
 
 interface UploadConfig {
   apiEndpoint: string;
@@ -21,40 +20,61 @@ type UploadState = {
 export const createUploadThunk = (config: UploadConfig) => {
   return createAsyncThunk(
     `${config.sliceName}/uploadFile`,
-    async (fileName: string, { rejectWithValue, dispatch }) => {
+    async (fileName: string, { dispatch, rejectWithValue }) => {
       try {
-        const requestData = {
-          fileName,
-          ...config.additionalData,
-        };
+        const fileInput = document.querySelector(
+          'input[type="file"]',
+        ) as HTMLInputElement;
+        const file = fileInput?.files?.[0];
 
-        const response = await axios.post(config.apiEndpoint, requestData, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          onUploadProgress: (progressEvent: AxiosProgressEvent) => {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / (progressEvent.total || 100),
-            );
-
-            // dispatch(setProgress(percentCompleted));
-          },
-        });
-
-        return response.data;
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          const errorMessage =
-            error.response?.data?.message || error.message || 'Upload failed';
-          return rejectWithValue(errorMessage);
+        if (!file) {
+          return rejectWithValue('No file selected');
         }
-        return rejectWithValue('An unexpected error occurred during upload');
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        // Add additional data if provided
+        if (config.additionalData) {
+          Object.entries(config.additionalData).forEach(([key, value]) => {
+            formData.append(key, value);
+          });
+        }
+
+        try {
+          const response = await fetch(config.apiEndpoint, {
+            method: 'POST',
+            headers: {
+              accept: 'application/json',
+            },
+            body: formData,
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => null);
+            throw new Error(
+              errorData?.message || response.statusText || 'Upload failed',
+            );
+          }
+
+          const result = await response.json();
+          return result;
+        } catch (error) {
+          if (error instanceof Error) {
+            throw error;
+          }
+          throw new Error('Upload failed');
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          return rejectWithValue(error.message);
+        }
+        return rejectWithValue('Upload failed');
       }
     },
   );
 };
 
-// Generic upload slice creator
 export const createUploadSlice = (
   config: UploadConfig,
   uploadThunk: ReturnType<typeof createAsyncThunk>,
@@ -101,11 +121,13 @@ export const createUploadSlice = (
         .addCase(uploadThunk.pending, (state) => {
           state.status = 'uploading';
           state.error = null;
+          state.progress = 0;
         })
         .addCase(uploadThunk.fulfilled, (state, action) => {
           state.status = 'completed';
           state.progress = 100;
           state.data = action.payload;
+          toast.success('File uploaded successfully');
         })
         .addCase(uploadThunk.rejected, (state, action) => {
           state.status = 'error';
@@ -116,21 +138,17 @@ export const createUploadSlice = (
   });
 };
 
-// Configuration for pipe upload
 const pipeUploadConfig: UploadConfig = {
   sliceName: 'uploadPipeFile',
-  apiEndpoint: '/api/upload-pipe-data',
-  additionalData: {
-  },
+  apiEndpoint: 'http://54.90.88.209:8000/upload/underground-3d-coordinates',
+  additionalData: {},
 };
 
-// Create the upload thunk and slice
 export const uploadPipeFile = createUploadThunk(pipeUploadConfig);
 export const uploadPipeFileSlice = createUploadSlice(
   pipeUploadConfig,
   uploadPipeFile as ReturnType<typeof createAsyncThunk>,
 );
-
 
 export const {
   setFile: setPipeFile,

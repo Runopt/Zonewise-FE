@@ -1,7 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { toast } from 'react-toastify';
-import axios, { AxiosProgressEvent } from 'axios';
-
 
 interface UploadConfig {
   apiEndpoint: string;
@@ -22,34 +20,60 @@ type UploadState = {
 export const createUploadThunk = (config: UploadConfig) => {
   return createAsyncThunk(
     `${config.sliceName}/uploadFile`,
-    async (fileName: string, { rejectWithValue }) => {
+    async (fileName: string, { dispatch, rejectWithValue }) => {
       try {
-        const requestData = {
-          fileName,
-          ...config.additionalData,
-        };
+        const fileInput = document.querySelector(
+          'input[type="file"]',
+        ) as HTMLInputElement;
+        const file = fileInput?.files?.[0];
 
-        const response = await axios.post(config.apiEndpoint, requestData, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          onUploadProgress: (progressEvent: AxiosProgressEvent) => {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / (progressEvent.total || 100),
-            );
-
-            // dispatch(setSlopeProgress(percentCompleted));
-          },
-        });
-
-        return response.data;
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          const errorMessage =
-            error.response?.data?.message || error.message || 'Upload failed';
-          return rejectWithValue(errorMessage);
+        if (!file) {
+          return rejectWithValue('No file selected');
         }
-        return rejectWithValue('An unexpected error occurred during upload');
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        if (config.additionalData) {
+          Object.entries(config.additionalData).forEach(([key, value]) => {
+            formData.append(key, value);
+          });
+        }
+
+        try {
+          const response = await fetch(config.apiEndpoint, {
+            method: 'POST',
+            headers: {
+              accept: 'application/json',
+            },
+            body: formData,
+          });
+
+          console.log('Upload Response:', response); // Console log the response
+
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => null);
+            throw new Error(
+              errorData?.message || response.statusText || 'Upload failed',
+            );
+          }
+
+          const result = await response.json();
+          console.log('Upload Result:', result); // Console log the result
+          return result;
+        } catch (error) {
+          console.error('Upload Error:', error); // Console log any errors
+          if (error instanceof Error) {
+            throw error;
+          }
+          throw new Error('Upload failed');
+        }
+      } catch (error) {
+        console.error('Upload Preparation Error:', error); // Console log preparation errors
+        if (error instanceof Error) {
+          return rejectWithValue(error.message);
+        }
+        return rejectWithValue('Upload failed');
       }
     },
   );
@@ -101,6 +125,7 @@ export const createUploadSlice = (
         .addCase(uploadThunk.pending, (state) => {
           state.status = 'uploading';
           state.error = null;
+          state.progress = 0;
         })
         .addCase(uploadThunk.fulfilled, (state, action) => {
           state.status = 'completed';
@@ -117,22 +142,17 @@ export const createUploadSlice = (
   });
 };
 
-
 const slopeUploadConfig: UploadConfig = {
   sliceName: 'uploadSlopeFile',
-  apiEndpoint: '/api/upload-slope-data',
-  additionalData: {
-
-  },
+  apiEndpoint: 'http://54.90.88.209:8000/upload/slope-stability',
+  additionalData: {},
 };
-
 
 export const uploadSlopeFile = createUploadThunk(slopeUploadConfig);
 export const uploadSlopeFileSlice = createUploadSlice(
   slopeUploadConfig,
   uploadSlopeFile as ReturnType<typeof createAsyncThunk>,
 );
-
 
 export const {
   setFile: setSlopeFile,

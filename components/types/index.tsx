@@ -91,4 +91,5 @@ export interface PathNumberState {
   isSubmitting: boolean;
   error: string | null;
   isFormValid: boolean;
+  csvData: Blob | null;
 }

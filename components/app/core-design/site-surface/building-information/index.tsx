@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import Input from '@/components/authentication/ui/input';
+import { toast } from 'react-toastify';
 import Label from '@/components/authentication/ui/label';
 import { RootState, AppDispatch } from '@/components/store/store';
 import {
@@ -10,6 +10,7 @@ import {
   setEditingBuilding,
   submitBuildings,
 } from '@/components/store/slices/buildingSlice';
+import { selectUploadSessionId } from '@/components/store/slices/uploadSlice';
 
 interface Building {
   name: string;
@@ -20,7 +21,6 @@ interface Building {
 interface BuildingInformationProps {
   onBack: () => void;
   onNext: () => void;
-  onSubmit?: (buildings: Building[]) => void;
 }
 
 const BuildingInformation: React.FC<BuildingInformationProps> = ({
@@ -28,20 +28,29 @@ const BuildingInformation: React.FC<BuildingInformationProps> = ({
   onNext,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { buildings, editingIndex, status, currentBuilding } = useSelector(
+  const { buildings, editingIndex, status } = useSelector(
     (state: RootState) => state.building,
   );
+
+  const sessionId = useSelector(selectUploadSessionId);
   const [buildingName, setBuildingName] = useState('');
   const [buildingLength, setBuildingLength] = useState('');
   const [buildingWidth, setBuildingWidth] = useState('');
   const formContainerRef = useRef<HTMLDivElement>(null);
   const isSubmitting = status === 'loading';
 
+
+  useEffect(() => {
+    dispatch(setEditingBuilding(null));
+  }, [dispatch]);
+
+
   useEffect(() => {
     if (status === 'succeeded') {
       onNext();
     }
   }, [status, onNext]);
+
 
   useEffect(() => {
     if (editingIndex !== null && buildings[editingIndex]) {
@@ -50,22 +59,26 @@ const BuildingInformation: React.FC<BuildingInformationProps> = ({
       setBuildingLength(buildingToEdit.length);
       setBuildingWidth(buildingToEdit.width);
     } else {
-      setBuildingName('');
-      setBuildingLength('');
-      setBuildingWidth('');
+      resetForm();
     }
   }, [editingIndex, buildings]);
 
+  const resetForm = () => {
+    setBuildingName('');
+    setBuildingLength('');
+    setBuildingWidth('');
+  };
+
+  const validateBuilding = (name: string, length: string, width: string) => {
+    if (!name.trim() || !length.trim() || !width.trim()) {
+      toast.error('All building details must be filled in');
+      return false;
+    }
+    return true;
+  };
+
   const handleAddBuilding = () => {
-    const buildingName = (
-      document.querySelector('input[name="buildingName"]') as HTMLInputElement
-    ).value;
-    const buildingLength = (
-      document.querySelector('input[name="buildingLength"]') as HTMLInputElement
-    ).value;
-    const buildingWidth = (
-      document.querySelector('input[name="buildingWidth"]') as HTMLInputElement
-    ).value;
+    if (!validateBuilding(buildingName, buildingLength, buildingWidth)) return;
 
     if (editingIndex !== null) {
       dispatch(
@@ -89,9 +102,6 @@ const BuildingInformation: React.FC<BuildingInformationProps> = ({
       );
     }
 
-    setBuildingName('');
-    setBuildingLength('');
-    setBuildingWidth('');
   };
 
   const handleEditBuilding = (index: number) => {
@@ -102,19 +112,27 @@ const BuildingInformation: React.FC<BuildingInformationProps> = ({
     dispatch(deleteBuilding(index));
   };
 
-  const handleSubmit = () => {
-    if (buildings.length === 0) {
-      if (formContainerRef.current) {
-        formContainerRef.current.classList.add('error-border');
+  const handleSubmit = async () => {
+     if (buildings.length === 0) {
+       toast.error('Please add at least one building before submitting');
+       return;
+     }
 
-        setTimeout(() => {
-          formContainerRef.current?.classList.remove('error-border');
-        }, 1000);
-      }
-      return;
-    }
+     if (!sessionId) {
+       toast.error('No session ID available. Please upload a file first.');
+       return;
+     }
 
-    dispatch(submitBuildings(buildings));
+     const requestBody = new URLSearchParams();
+     requestBody.append('session_id', sessionId);
+     requestBody.append('buildings_json', JSON.stringify(buildings));
+
+     try {
+       await dispatch(submitBuildings(requestBody)).unwrap();
+
+     } catch (error) {
+       console.error('Detailed Submission Error:', error);
+     }
   };
 
   return (
@@ -166,7 +184,7 @@ const BuildingInformation: React.FC<BuildingInformationProps> = ({
         </div>
 
         <button className="add" onClick={handleAddBuilding}>
-          <img src="../../images/icons/add-black.svg" alt="" />
+          <img src="../../images/icons/add-black.svg" alt="Add" />
           {editingIndex !== null ? 'Update' : 'Add'}
         </button>
       </div>
@@ -177,7 +195,7 @@ const BuildingInformation: React.FC<BuildingInformationProps> = ({
             <img
               className="file-icon"
               src="../../images/icons/buliding.svg"
-              alt=""
+              alt="Building"
             />
             <div className="building-info">
               <div className="building-name">{building.name}</div>
@@ -196,13 +214,13 @@ const BuildingInformation: React.FC<BuildingInformationProps> = ({
 
             <div className="added-building-cta">
               <div className="edit" onClick={() => handleEditBuilding(index)}>
-                <img src="../../images/icons/edit.svg" alt="" />
+                <img src="../../images/icons/edit.svg" alt="Edit" />
               </div>
               <div
                 className="delete"
                 onClick={() => handleDeleteBuilding(index)}
               >
-                <img src="../../images/icons/delete.svg" alt="" />
+                <img src="../../images/icons/delete.svg" alt="Delete" />
               </div>
             </div>
           </div>

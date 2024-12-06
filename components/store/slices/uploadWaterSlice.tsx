@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { toast } from 'react-toastify';
-import axios, { AxiosProgressEvent } from 'axios';
+
 
 interface UploadConfig {
   apiEndpoint: string;
@@ -17,38 +17,64 @@ type UploadState = {
   error: string | null;
   data: any | null;
 };
+interface UploadResponse {
+  message?: string,
+  unique_path_count?: number
+}
 
 export const createUploadThunk = (config: UploadConfig) => {
-  return createAsyncThunk(
+  return createAsyncThunk<UploadResponse, string>(
     `${config.sliceName}/uploadFile`,
-    async (fileName: string, { rejectWithValue }) => {
+    async (fileName: string, { dispatch, rejectWithValue }) => {
       try {
-        const requestData = {
-          fileName,
-          ...config.additionalData,
-        };
+        const fileInput = document.querySelector(
+          'input[type="file"]',
+        ) as HTMLInputElement;
+        const file = fileInput?.files?.[0];
 
-        const response = await axios.post(config.apiEndpoint, requestData, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          onUploadProgress: (progressEvent: AxiosProgressEvent) => {
-            const totalSize = progressEvent.total || progressEvent.loaded;
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / totalSize,
-            );
-            // dispatch(setWaterProgress(percentCompleted));
-          },
-        });
-
-        return response.data;
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          const errorMessage =
-            error.response?.data?.message || error.message || 'Upload failed';
-          return rejectWithValue(errorMessage);
+        if (!file) {
+          return rejectWithValue('No file selected');
         }
-        return rejectWithValue('An unexpected error occurred during upload');
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+
+        if (config.additionalData) {
+          Object.entries(config.additionalData).forEach(([key, value]) => {
+            formData.append(key, value);
+          });
+        }
+
+        try {
+          const response = await fetch(config.apiEndpoint, {
+            method: 'POST',
+            headers: {
+              accept: 'application/json',
+            },
+            body: formData,
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => null);
+            throw new Error(
+              errorData?.message || response.statusText || 'Upload failed',
+            );
+          }
+
+          const result = await response.json();
+          return result;
+        } catch (error) {
+          if (error instanceof Error) {
+            throw error;
+          }
+          throw new Error('Upload failed');
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          return rejectWithValue(error.message);
+        }
+        return rejectWithValue('Upload failed');
       }
     },
   );
@@ -102,12 +128,22 @@ export const createUploadSlice = (
           state.error = null;
           state.progress = 0;
         })
-        .addCase(uploadThunk.fulfilled, (state, action) => {
-          state.status = 'completed';
-          state.progress = 100;
-          state.data = action.payload;
-          toast.success('Water data file uploaded successfully');
-        })
+        .addCase(
+          uploadThunk.fulfilled,
+          (state, action: PayloadAction<UploadResponse>) => {
+            state.status = 'completed';
+            state.progress = 100;
+            state.data = action.payload;
+
+            const responseMessage =
+              action.payload?.message ||
+              'Water data file uploaded successfully';
+            const uniquePathCount = action.payload?.unique_path_count;
+            toast.success(
+              `${responseMessage} (Unique Paths: ${uniquePathCount || 0})`,
+            );
+          },
+        )
         .addCase(uploadThunk.rejected, (state, action) => {
           state.status = 'error';
           state.error = action.payload as string;
@@ -118,21 +154,18 @@ export const createUploadSlice = (
   });
 };
 
-// Configuration for water data upload
 const waterUploadConfig: UploadConfig = {
   sliceName: 'uploadWaterFile',
-  apiEndpoint: '/api/upload-water-data',
+  apiEndpoint: 'http://54.90.88.209:8000/upload/water-supply',
   additionalData: {},
 };
 
-// Create the upload thunk and slice
 export const uploadWaterFile = createUploadThunk(waterUploadConfig);
 export const uploadWaterFileSlice = createUploadSlice(
   waterUploadConfig,
   uploadWaterFile as ReturnType<typeof createAsyncThunk>,
 );
 
-// Export actions and reducer
 export const {
   setFile: setWaterFile,
   resetUpload: resetWaterUpload,

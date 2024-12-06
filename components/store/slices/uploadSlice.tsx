@@ -9,6 +9,7 @@ export type UploadState = {
   status: 'idle' | 'uploading' | 'completed' | 'error';
   error: string | null;
   data: any | null;
+  sessionId: string | null;
 };
 
 export interface UploadConfig {
@@ -16,57 +17,64 @@ export interface UploadConfig {
   apiEndpoint: string;
 }
 
+export interface UploadResponse {
+  session_id: string;
+  [key: string]: any;
+}
+
+export type UploadError = string;
+
 export const createUploadThunk = (config: UploadConfig) => {
-  return createAsyncThunk(
+  return createAsyncThunk<UploadResponse, string, { rejectValue: UploadError }>(
     `${config.sliceName}/uploadFile`,
     async (fileName: string, { rejectWithValue }) => {
-    
-      const fileInput = document.querySelector(
-        'input[type="file"]',
-      ) as HTMLInputElement;
-      const file = fileInput?.files?.[0];
-
-      if (!file) {
-        return rejectWithValue('No file selected');
-      }
-
       try {
-        const arrayBuffer = await new Promise<ArrayBuffer>(
-          (resolve, reject) => {
-            const reader = new FileReader();
+        const fileInput = document.querySelector(
+          'input[type="file"]',
+        ) as HTMLInputElement;
+        const storedFileName = localStorage.getItem('uploadedFileName');
+        const storedFileSize = localStorage.getItem('uploadedFileSize');
+        const storedFileType = localStorage.getItem('uploadedFileType');
 
-            reader.onload = (e) => {
-              const result = e.target?.result;
-              if (result instanceof ArrayBuffer) {
-                resolve(result);
-              } else {
-                reject(new Error('Failed to read file as ArrayBuffer'));
-              }
-            };
+        if (!storedFileName) {
+          return rejectWithValue('No file selected');
+        }
+        const file = fileInput?.files?.[0];
 
-            reader.onerror = () => {
-              reject(new Error('Failed to read file'));
-            };
-
-            reader.readAsArrayBuffer(file);
-          },
-        );
-
-        const response = await fetch(config.apiEndpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': file.type || 'application/octet-stream',
-            accept: 'application/json',
-          },
-          body: arrayBuffer,
-        });
-
-        if (!response.ok) {
-          throw new Error(response.statusText || 'Upload failed');
+        if (!file) {
+          return rejectWithValue('No file selected');
         }
 
-        const result = await response.json();
-        return result;
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+          const response = await fetch(config.apiEndpoint, {
+            method: 'POST',
+            headers: {
+              accept: 'application/json',
+            },
+            body: formData,
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => null);
+            throw new Error(
+              errorData?.message || response.statusText || 'Upload failed',
+            );
+          }
+
+          const result = await response.json();
+          if (!result.session_id) {
+            throw new Error('No session ID received from server');
+          }
+          return result as UploadResponse;
+        } catch (error) {
+          if (error instanceof Error) {
+            throw error;
+          }
+          throw new Error('Upload failed');
+        }
       } catch (error) {
         if (error instanceof Error) {
           return rejectWithValue(error.message);
@@ -79,7 +87,7 @@ export const createUploadThunk = (config: UploadConfig) => {
 
 export const createUploadSlice = (
   config: UploadConfig,
-  uploadThunk: ReturnType<typeof createAsyncThunk>,
+  uploadThunk: ReturnType<typeof createUploadThunk>,
 ) => {
   const initialState: UploadState = {
     fileName: null,
@@ -89,6 +97,7 @@ export const createUploadSlice = (
     status: 'idle',
     error: null,
     data: null,
+    sessionId: null,
   };
 
   return createSlice({
@@ -110,15 +119,10 @@ export const createUploadSlice = (
         state.progress = 0;
         state.error = null;
         state.data = null;
+        state.sessionId = null;
       },
       resetUpload: (state) => {
-        state.fileName = null;
-        state.fileSize = null;
-        state.fileType = null;
-        state.progress = 0;
-        state.status = 'idle';
-        state.error = null;
-        state.data = null;
+        Object.assign(state, initialState);
       },
       setProgress: (state, action: PayloadAction<number>) => {
         state.progress = action.payload;
@@ -130,32 +134,43 @@ export const createUploadSlice = (
           state.status = 'uploading';
           state.error = null;
           state.progress = 0;
+          state.sessionId = null;
         })
-        .addCase(uploadThunk.fulfilled, (state, action) => {
-          state.status = 'completed';
-          state.progress = 100;
-          state.data = action.payload;
-          toast.success('File uploaded successfully');
-        })
+        .addCase(
+          uploadThunk.fulfilled,
+          (state, action: PayloadAction<UploadResponse>) => {
+            state.status = 'completed';
+            state.progress = 100;
+            state.data = action.payload;
+            state.sessionId = action.payload.session_id;
+            console.log('Session ID:', state.sessionId);
+            toast.success('File uploaded successfully');
+          },
+        )
         .addCase(uploadThunk.rejected, (state, action) => {
           state.status = 'error';
-          state.error = action.payload as string;
-          toast.error(state.error || 'File upload failed');
+          state.error = action.payload || 'Unknown error occurred';
+          state.sessionId = null;
+          toast.error(state.error);
         });
     },
   });
 };
 
+export interface RootState {
+  upload: UploadState;
+}
+
+export const selectUploadSessionId = (state: RootState) =>
+  state.upload.sessionId;
+
 const siteUploadConfig: UploadConfig = {
   sliceName: 'upload',
-  apiEndpoint: 'http://localhost:8000/upload/site-surface',
+  apiEndpoint: 'http://54.90.88.209:8000/upload/site-surface',
 };
 
 export const uploadSiteFile = createUploadThunk(siteUploadConfig);
-export const uploadSlice = createUploadSlice(
-  siteUploadConfig,
-  uploadSiteFile as ReturnType<typeof createAsyncThunk>,
-);
+export const uploadSlice = createUploadSlice(siteUploadConfig, uploadSiteFile);
 
 export const {
   setFile: setSiteFile,

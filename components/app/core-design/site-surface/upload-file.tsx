@@ -40,6 +40,7 @@ const UploadFile: React.FC<FileUploadProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [showTemplate, setShowTemplate] = useState(true);
   const [isInvalidFile, setIsInvalidFile] = useState(false);
+  const [localFile, setLocalFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadContainerRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch<AppDispatch>();
@@ -52,6 +53,24 @@ const UploadFile: React.FC<FileUploadProps> = ({
       uploadContainerRef.current.style.border = '';
     }
   }, [fileName]);
+
+  useEffect(() => {
+    const storedFileName = localStorage.getItem('uploadedFileName');
+    const storedFileSize = localStorage.getItem('uploadedFileSize');
+    const storedFileType = localStorage.getItem('uploadedFileType');
+
+    if (storedFileName && storedFileSize && storedFileType) {
+      dispatch(
+        setSiteFile({
+          name: storedFileName,
+          size: parseInt(storedFileSize),
+          type: storedFileType,
+        }),
+      );
+      setShowTemplate(false);
+    }
+  }, [dispatch]);
+
   const validateFile = (file: File): string | null => {
     const fileExtension = file.name
       .slice(file.name.lastIndexOf('.'))
@@ -73,13 +92,11 @@ const UploadFile: React.FC<FileUploadProps> = ({
       toast.error(validationError);
       return;
     }
-    if (uploadContainerRef.current) {
-       uploadContainerRef.current.classList.add('error-border-dashed');
+    setLocalFile(selectedFile);
+    localStorage.setItem('uploadedFileName', selectedFile.name);
+    localStorage.setItem('uploadedFileSize', selectedFile.size.toString());
+    localStorage.setItem('uploadedFileType', mapFileType(selectedFile.type));
 
-       setTimeout(() => {
-         uploadContainerRef.current?.classList.remove('error-border-dashed');
-       }, 1000);
-    }
     dispatch(
       setSiteFile({
         name: selectedFile.name,
@@ -142,8 +159,13 @@ const UploadFile: React.FC<FileUploadProps> = ({
   };
 
   const handleDelete = (): void => {
+    localStorage.removeItem('uploadedFileName');
+    localStorage.removeItem('uploadedFileSize');
+    localStorage.removeItem('uploadedFileType');
+
     dispatch(resetSiteUpload());
     setShowTemplate(true);
+    setLocalFile(null);
 
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -176,18 +198,26 @@ const UploadFile: React.FC<FileUploadProps> = ({
           uploadContainerRef.current?.classList.remove('error-border-dashed');
         }, 1000);
       }
-
       return;
     }
 
     if (status !== 'uploading' && status !== 'completed') {
-      dispatch(uploadSiteFile(fileName));
+      if (localFile) {
+        dispatch(uploadSiteFile(localFile.name));
+      }
+      return;
     }
 
     if (status === 'completed') {
       onNext?.();
     }
   };
+
+  useEffect(() => {
+    if (status === 'completed') {
+      onNext?.();
+    }
+  }, [status, onNext]);
 
   return (
     <div className="upload-file">
@@ -205,6 +235,7 @@ const UploadFile: React.FC<FileUploadProps> = ({
       >
         <input
           type="file"
+          name="file"
           ref={fileInputRef}
           onChange={handleFileInput}
           accept=".csv, .xlsx"

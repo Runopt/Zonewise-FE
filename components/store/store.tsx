@@ -22,7 +22,7 @@ import { siteSurfaceStepperSlice } from './slices/stepperSlice';
 import { pipeSystemStepperSlice } from './slices/stepperPipeSlice';
 import { waterSupplyStepperSlice } from './slices/stepperWaterSlice';
 import { slopeStabilityStepperSlice } from './slices/stepperSlopeSlice';
-import nodeReducer from './slices/nodeSlice';
+import { nodeSlice } from './slices/nodeSlice';
 
 const rootReducer = combineReducers({
   upload: siteUploadReducer,
@@ -32,7 +32,7 @@ const rootReducer = combineReducers({
   plot: plotSlice.reducer,
   building: buildingSlice.reducer,
   path: pathNumberSlice.reducer,
-  node: nodeReducer,
+  node: nodeSlice.reducer,
   siteSurfaceStepper: siteSurfaceStepperSlice.reducer,
   pipeSystemStepper: pipeSystemStepperSlice.reducer,
   waterSupplyStepper: waterSupplyStepperSlice.reducer,
@@ -51,9 +51,10 @@ const persistConfig = {
     'uploadSlopeFile',
     'uploadWaterFile',
 
-    //     'siteSurfaceStepper',
-    //     'pipeSystemStepper'
-    // 'waterSupplyStepper',
+    'siteSurfaceStepper',
+    'pipeSystemStepper',
+    'waterSupplyStepper',
+    'siteSurfaceStepper',
   ],
 };
 

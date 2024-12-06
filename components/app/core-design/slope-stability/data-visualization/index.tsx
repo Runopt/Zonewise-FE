@@ -6,10 +6,12 @@ interface DataVisualizationProps {
 }
 
 const DataVisualization: React.FC<DataVisualizationProps> = ({ onBack }) => {
-  return <div className="data-visualization-container">DataVisualization
-  
-  
-  </div>;
+  return (
+    <div className="node-container building-information-container">
+      HELLO WORLD HELLO WORLD HELLO WORLD HELLO WORLD HELLO WORLD HELLO WORLD
+      HELLO WORLD HELLO WORLD HELLO WORLD HELLO WORLD
+    </div>
+  );
 };
 
 export default DataVisualization;

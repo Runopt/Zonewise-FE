@@ -8,6 +8,7 @@ import {
   waterSupplyNextStep,
   waterSupplyPreviousStep,
 } from '../../../store/slices/stepperWaterSlice';
+
 const WaterSupply = () => {
   const dispatch = useDispatch();
   const currentStep = useSelector(
@@ -30,7 +31,7 @@ const WaterSupply = () => {
         <PathNumber onBack={handleBack} onNext={handleNext} />
       )}
       {currentStep === 3 && (
-        <FinalDataFrame onBack={handleBack} onNext={handleNext} />
+        <FinalDataFrame onBack={handleBack} />
       )}
     </div>
   );
