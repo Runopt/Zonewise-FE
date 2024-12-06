@@ -1,7 +1,11 @@
 // components/Modal.js
 import { useEffect, useState } from 'react';
 
-const Welcome = ({ onClose, show }) => {
+interface WelcomeProps {
+  onClose: any;
+  show: any;
+}
+const Welcome: React.FC<WelcomeProps> = ({ onClose, show }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const slides = [
     {
@@ -12,12 +16,14 @@ const Welcome = ({ onClose, show }) => {
     },
     {
       title: 'Another Feature',
-      description: 'Runopt is transforming the civil engineering landscape with its AI-driven, fully integrated design optimization tool, delivering faster, cost-effective solutions.',
+      description:
+        'Runopt is transforming the civil engineering landscape with its AI-driven, fully integrated design optimization tool, delivering faster, cost-effective solutions.',
       image: '/images/icons/placeholder.svg',
     },
     {
       title: 'Another Feature',
-      description: 'Runopt is transforming the civil engineering landscape with its AI-driven, fully integrated design optimization tool, delivering faster, cost-effective solutions.',
+      description:
+        'Runopt is transforming the civil engineering landscape with its AI-driven, fully integrated design optimization tool, delivering faster, cost-effective solutions.',
       image: '/images/icons/placeholder.svg',
     },
   ];
@@ -49,7 +55,6 @@ const Welcome = ({ onClose, show }) => {
           <img src="../images/icons/close.svg" alt="" />
         </button>
         <div className="carousel">
-
           <div className="slide">
             <div className="slider-img">
               <img
