@@ -1,12 +1,38 @@
 import React, { useState } from 'react';
+import { useRouter } from 'next/router';
 import Label from '../ui/label';
 import Input from '../ui/input';
 import Button from '../ui/button';
 import Link from 'next/link';
+import axios, { API_ENDPOINTS } from '@/utils/axios';
 
 const LeftLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const router = useRouter();
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const response = await axios.post(API_ENDPOINTS.LOGIN, {
+        email,
+        password,
+      });
+      console.log('Login successful:', response.data);
+      setAlertMessage('Login successful!');
+      console.log('Navigating to /home');
+      router.push('/home');
+    } catch (error) {
+      console.error('Login error:', error);
+      if (error.response && error.response.data) {
+        setAlertMessage(error.response.data.detail || error.response.data.message);
+      } else {
+        setAlertMessage('An unexpected error occurred. Please try again.');
+      }
+    }
+  };
 
   return (
     <div className="left-signup-container">
@@ -20,7 +46,9 @@ const LeftLogin = () => {
           </p>
         </div>
 
-        <div className="form">
+        {alertMessage && <div className="server-alert">{alertMessage}</div>}
+
+        <form className="form" onSubmit={handleLogin}>
           <div className="field">
             <Label value="Email" />
             <Input
@@ -47,10 +75,8 @@ const LeftLogin = () => {
           </div>
 
           <div className="forgot-password">Forgot Password?</div>
-          <Link href="./email-verification">
-            <Button id="sign-in" type="submit" value="Sign In" />
-          </Link>
-        </div>
+          <Button id="sign-in" type="submit" value="Sign In" />
+        </form>
 
         <div className="or">
           <div className="border"></div>
