@@ -23,7 +23,6 @@ const DataReferenceModal: React.FC<DataReferenceModalProps> = ({
     if (selectedOption) {
       onContinue(selectedOption);
     } else {
-      // Optionally, provide feedback if no option is selected
       alert('Please select an option before continuing.');
     }
   };

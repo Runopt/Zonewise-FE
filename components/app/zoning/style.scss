@@ -6,31 +6,105 @@ $secondaryTextColor: #949494;
 
 .zoning-container {
   display: flex;
-  flex-direction: column;
   background: rgba(255, 255, 255, 0.02);
-  // position: relative;
-  min-height: calc(100vh - 90px);
-  margin-top: 90px;
+  position: relative;
+  min-height: 100vh;
+  padding: 1rem;
 
+  .user-actions-container {
+    position: fixed;
+    right: 1rem;
+    top: 1rem;
+    display: flex;
+    gap: 1rem;
+    z-index: 111;
+    .notification {
+      button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 36px;
+        width: 36px;
+        border-radius: 42px;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        outline: none;
+      }
+    }
+
+    .user-profile-icon {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 36px;
+      width: 36px;
+      border-radius: 4px;
+      background: var(
+        --grad,
+        linear-gradient(255deg, #355be0 0%, #b945cc 100%)
+      );
+      cursor: pointer;
+
+      color: #fff;
+      text-align: center;
+      font-family: 'Inter Tight';
+      font-size: 18px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: normal;
+    }
+
+    .user-action {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      width: 200px;
+      position: fixed;
+      right: 1rem;
+      top: 60px;
+      background: rgba(255, 255, 255, 0.081);
+      z-index: 111111;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+
+      button {
+        padding: 0.8rem 0.5rem;
+        width: 100%;
+        text-align: left;
+
+        background: none;
+        font-size: 16px;
+        color: #e0e1e5;
+
+        &:hover {
+          background: rgba(114, 71, 178, 0.1);
+          border-radius: 4px;
+        }
+      }
+    }
+  }
   main {
     position: relative;
-    width: 100%;
+    width: calc(100% - 300px);
     margin: 0;
+    margin-left: auto;
     padding: 50px 50px;
     display: flex;
     flex-direction: column;
     align-items: center;
 
-    .start-content {
+    .empty-chat {
       display: flex;
       justify-content: center;
       align-items: flex-start;
       flex-direction: column;
       margin: auto 0;
-      margin-top: 100px;
+      // margin-top: 100px;
       width: 100%;
       height: 100%;
-      max-width: 1075px;
+      max-width: 775px;
 
       .desc {
         h3 {
@@ -76,7 +150,7 @@ $secondaryTextColor: #949494;
 
     .prompt-container {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
       padding: 16px 16px;
       height: auto;
@@ -84,10 +158,10 @@ $secondaryTextColor: #949494;
       position: fixed;
       bottom: 50px;
       left: 50%;
-      transform: translate(-50%);
+      transform: translate(-238px);
       display: flex;
       width: 100%;
-      max-width: 1075px;
+      max-width: 775px;
       // overflow: hidden;
       word-wrap: break-word;
       white-space: pre-wrap;
@@ -123,9 +197,8 @@ $secondaryTextColor: #949494;
         justify-content: center;
         align-items: center;
         margin: 0 1rem;
-        padding-top: 8px;
-        margin-top: auto;
-        flex-basis: 80%;
+        padding-top: 0.5rem;
+        flex-basis: 78%;
         justify-content: center;
         font-family: 'satoshi-regular';
         background: transparent;
@@ -135,15 +208,13 @@ $secondaryTextColor: #949494;
         white-space: pre-wrap;
         overflow-wrap: break-word;
         resize: none;
-        // overflow: hidden;
-
-        // Set initial min-height
-        // min-height: 100%;
+        min-height: 100%;
 
         &::placeholder {
           font-size: 16px;
           font-style: normal;
           line-height: normal;
+          padding-top: 0.5rem;
         }
       }
 
@@ -160,7 +231,7 @@ $secondaryTextColor: #949494;
         justify-content: center;
         gap: 0.5rem;
         margin-top: auto;
-        // margin-bottom: 1rem;
+
         &#send {
           max-width: 42px;
           background: var(
@@ -178,15 +249,14 @@ $secondaryTextColor: #949494;
         display: flex;
         flex-direction: column-reverse;
         justify-content: center;
-        // align-items: start;
-        flex-basis: 15%;
+        flex-basis: 18%;
         margin-top: auto;
-        // height: auto;
         overflow: hidden;
 
-        #upload {
+        .upload-button {
           position: relative;
           height: 42px;
+          width: max-content;
           border-radius: 4px;
           display: flex;
           align-items: center;
@@ -195,7 +265,6 @@ $secondaryTextColor: #949494;
           color: #fff;
           font-size: 14px;
           font-style: normal;
-          line-height: 150%; /* 18px */
           background: rgba(255, 255, 255, 0.1);
           padding: 0 16px;
           cursor: pointer;
@@ -243,7 +312,7 @@ $secondaryTextColor: #949494;
       flex-direction: column;
       justify-content: center;
       width: 100%;
-      max-width: 1075px;
+      max-width: 775px;
       height: 100%;
       margin-bottom: 5rem;
 
@@ -300,6 +369,14 @@ $secondaryTextColor: #949494;
             margin-top: 0.5rem;
             color: $whiteTextPrimary;
             line-height: 160%;
+
+
+            .file-badge {
+              margin-top: 1rem;
+              display: flex;
+              align-items: center;
+              gap: .5rem;
+            }
           }
         }
       }

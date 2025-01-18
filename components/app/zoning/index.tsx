@@ -1,145 +1,221 @@
-import { useState, useRef, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/components/store/store';
+import Image from 'next/image';
+import { useRef, useEffect, useState } from 'react';
+import {
+  setPromptState,
+  addQuestionToChat,
+  addChat,
+  setIsModalOpen,
+} from '@/components/store/slices/zoningSlice';
 import DataReferenceModal from './data-reference-modal';
-import Navbar from '../navbar';
+import ZoningSidebar from './sidebar';
 
 const ZoningContainer: React.FC = () => {
-  const [file, setFile] = useState<File | null>(null);
-  const [prompt, setPrompt] = useState<string>('');
-  const [response, setResponse] = useState<string>('');
-  const [isResponseActive, setIsResponseActive] = useState<boolean>(false);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(true); // Set to true to open modal on page load
-  const [isLiked, setIsLiked] = useState<boolean>(false);
-  const [isDisliked, setIsDisliked] = useState<boolean>(false);
+  const dispatch = useDispatch();
+  const [isUserActionOpen, setIsUserActionOpen] = useState(false);
+  const userActionRef = useRef<HTMLDivElement>(null);
+  const { chats, activeChatId, isModalOpen } = useSelector(
+    (state: RootState) => state.zoning,
+  );
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const activeChat = chats.find((chat) => chat.id === activeChatId);
 
-  const tips = [
-    {
-      id: 0,
-      icon: '../images/icons/routing.svg',
-      desc: 'Determine the location of this zone for this size location....',
-    },
-    {
-      id: 1,
-      icon: '../images/icons/magnet.svg',
-      desc: 'Determine the location of this zone for this size location....',
-    },
-    {
-      id: 2,
-      icon: '../images/icons/routing.svg',
-      desc: 'Determine the location of this zone for this size location....',
-    },
-  ];
-
-  const resizePromptContainer = () => {
-    const textarea = textareaRef.current;
-    const promptContainer = document.querySelector(
-      '.prompt-container',
-    ) as HTMLElement;
-
-    if (textarea && promptContainer) {
-      textarea.style.height = 'auto';
-      textarea.style.height = `${textarea.scrollHeight}px`;
-      promptContainer.style.height = `${textarea.scrollHeight}px`;
-    }
-  };
-
-  useEffect(() => {
-    const textarea = textareaRef.current;
-
-    if (textarea) {
-      textarea.addEventListener('input', resizePromptContainer);
-      resizePromptContainer();
-
-      return () => {
-        textarea.removeEventListener('input', resizePromptContainer);
-      };
-    }
-  }, [file]);
+  const hasInitialized = useRef(false); // Ref to track initialization
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0] || null;
-    setFile(selectedFile);
-    resizePromptContainer();
-
-    if (selectedFile) {
-      setIsModalOpen(true);
+    if (activeChatId) {
+      dispatch(
+        setPromptState({
+          chatId: activeChatId,
+          prompt: activeChat?.promptState.prompt || '',
+          fileState: {
+            file: selectedFile,
+            fileName: selectedFile?.name,
+          },
+        }),
+      );
+      dispatch(setIsModalOpen(true));
     }
   };
 
-  const removeFile = () => {
-    setFile(null);
-    resizePromptContainer();
-  };
-
   const handleSend = async () => {
-    if (prompt.trim() === '') return;
+    if (!activeChat?.promptState.prompt.trim()) {
+      alert('Please enter a prompt before sending.');
+      return;
+    }
 
     try {
       const response = await fetch('/api/submitPrompt', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ prompt }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: activeChat.promptState.prompt,
+          fileName: activeChat.promptState.fileState.fileName,
+        }),
       });
 
-      if (!response.ok) throw new Error('Network response was not ok');
-
+      if (!response.ok) throw new Error('Failed to fetch response');
       const data = await response.json();
-      setResponse(data.response);
-      setIsResponseActive(true);
 
-      setPrompt('');
-      resizePromptContainer();
+      if (activeChatId && activeChat) {
+        dispatch(
+          addQuestionToChat({
+            chatId: activeChatId,
+            question: {
+              id: Date.now(),
+              text: activeChat.promptState.prompt,
+              response: data.response,
+              fileState: {
+                file: activeChat.promptState.fileState.file,
+                fileName: activeChat.promptState.fileState.fileName,
+              },
+              loading: false,
+              error: null,
+            },
+          }),
+        );
+      }
     } catch (error) {
-      console.error('Error sending prompt:', error);
+      console.error(error);
+      alert('There was an error sending your prompt. Please try again.');
     }
   };
 
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-  };
+  useEffect(() => {
+    // Guard to ensure addChat is called only once
+    if (!hasInitialized.current && chats.length === 0) {
+      dispatch(
+        addChat({
+          id: Date.now(),
+          title: 'New Chat',
+          questions: [],
+        }),
+      );
+      hasInitialized.current = true; // Set the flag after dispatching
+    }
+  }, [chats, dispatch]);
 
-  const handleModalContinue = (selectedOption: string) => {
-    console.log('Selected Option:', selectedOption);
-    setIsModalOpen(false);
+  const shouldShowEmptyState =
+    activeChat?.isEmpty && activeChat.questions.length === 0;
+  const shouldShowOutputContainer =
+    !activeChat?.isEmpty || activeChat?.questions.length > 0;
 
-    // Handle the selected option if needed
-  };
+  const tips = [
+    {
+      id: 0,
+      icon: '/images/icons/routing.svg',
+      desc: 'Determine the location of this zone for this size location....',
+    },
+    {
+      id: 1,
+      icon: '/images/icons/magnet.svg',
+      desc: 'Determine the location of this zone for this size location....',
+    },
+    {
+      id: 2,
+      icon: '/images/icons/routing.svg',
+      desc: 'Determine the location of this zone for this size location....',
+    },
+  ];
 
-  const handleLike = () => {
-    if (isDisliked) setIsDisliked(false);
-    setIsLiked((prev) => !prev);
-  };
-
-  const handleDislike = () => {
-    if (isLiked) setIsLiked(false);
-    setIsDisliked((prev) => !prev);
-  };
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        userActionRef.current &&
+        !userActionRef.current.contains(event.target as Node)
+      ) {
+        setIsUserActionOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <div className="zoning-container">
-      <Navbar />
+      <ZoningSidebar />
 
+      <div className="user-actions-container">
+        <div className="notification">
+          <button title="notification">
+            <img src="../images/icons/notification.svg" alt="" />
+          </button>
+        </div>
+
+        <button
+          className="user-profile-icon"
+          onClick={() => setIsUserActionOpen(!isUserActionOpen)}
+        >
+          OO
+        </button>
+        {isUserActionOpen && (
+          <div className="user-action" ref={userActionRef}>
+            <button>Go Home</button>
+            <button>Account Settings</button>
+            <button>Logout</button>
+          </div>
+        )}
+      </div>
       <main className="main">
-        {!isResponseActive && (
-          <div className="start-content">
+        {shouldShowEmptyState && (
+          <div className="empty-chat">
             <div className="desc">
-              <h3>Start Zoning, Olakunbi!</h3>
-              <p>
-                Input the site location and type of proposed building​. <br />
-                You can upload relevant document for the region to be searched
-              </p>
+              <h3>Welcome to Zoning!</h3>
+              <p>Start by entering a prompt or uploading a file.</p>
             </div>
 
             <div className="tips-container">
               {tips.map((tip) => (
                 <div className="tip" key={tip.id}>
-                  <img src={tip.icon} alt="" />
+                  <Image src={tip.icon} alt="" width={24} height={24} />
                   <p>{tip.desc}</p>
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {shouldShowOutputContainer && (
+          <div className="output-container">
+            {activeChat?.questions.map((q) => (
+              <div key={q.id} className="response-item">
+                <div className="request-container">
+                  <div className="user-details">OO</div>
+                  <div className="question-container">
+                    <div className="meta-data">
+                      <span>You</span>
+                      {q.fileState.fileName && (
+                        <span className="file-name">
+                          {q.fileState.fileName}
+                        </span>
+                      )}
+                    </div>
+                    <div className="question">
+                      <p>{q.text}</p>
+                      {q.fileState.fileName && (
+                        <div className="file-badge">
+                          <img src="../images/icons/document.svg" alt="File" />
+                          {q.fileState.fileName}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="response-container">
+                  <div className="details">
+                    <div className="app">
+                      <div className="main">
+                        <div className="response">{q.response}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
@@ -151,19 +227,36 @@ const ZoningContainer: React.FC = () => {
               accept=".pdf"
               onChange={handleFileChange}
             />
-
-            <label id="upload" htmlFor="upload" className="upload-button">
-              <img src="../images/icons/import.svg" alt="Upload PDF" />
-              Upload PDF file
+            <label htmlFor="upload" className="upload-button">
+              <Image
+                src="/images/icons/import.svg"
+                alt="Upload PDF"
+                width={18}
+                height={18}
+              />
+              Upload PDF
             </label>
-
-            {file && (
+            {activeChat?.promptState.fileState.fileName && (
               <div className="file-info">
-                <img src="../images/icons/document.svg" alt="" />
-                <p> {`${file.name.substring(0, 12)}...pdf`}</p>
+                <img src="../images/icons/document.svg" alt="File" />
+                <p>
+                  {activeChat.promptState.fileState.fileName.length > 12
+                    ? `${activeChat.promptState.fileState.fileName.slice(
+                        0,
+                        12,
+                      )}...`
+                    : activeChat.promptState.fileState.fileName}
+                </p>
                 <button
-                  onClick={removeFile}
-                  title="Remove file"
+                  onClick={() =>
+                    dispatch(
+                      setPromptState({
+                        chatId: activeChatId!,
+                        prompt: activeChat.promptState.prompt,
+                        fileState: { file: null },
+                      }),
+                    )
+                  }
                   className="remove-button"
                 >
                   <img src="../images/icons/close.svg" alt="Remove" />
@@ -171,85 +264,44 @@ const ZoningContainer: React.FC = () => {
               </div>
             )}
           </div>
+
           <textarea
             ref={textareaRef}
             placeholder="Enter your questions here"
-            value={prompt}
-            onChange={(e) => {
-              setPrompt(e.target.value);
-              resizePromptContainer();
-            }}
+            value={activeChat?.promptState.prompt || ''}
+            onChange={(e) =>
+              dispatch(
+                setPromptState({
+                  chatId: activeChatId!,
+                  prompt: e.target.value,
+                  fileState: activeChat?.promptState.fileState || {
+                    file: null,
+                  },
+                }),
+              )
+            }
           />
 
-          <button id="send" title="send" onClick={handleSend}>
-            <img src="../images/icons/arrow-up.svg" alt="Send" />
+          <button
+            id="send"
+            title="send"
+            onClick={handleSend}
+            disabled={!activeChat?.promptState.prompt.trim()}
+          >
+            <Image
+              src="/images/icons/arrow-up.svg"
+              alt="Send"
+              width={18}
+              height={18}
+            />
           </button>
         </div>
-
-        {isResponseActive && (
-          <div className="output-container">
-            <div className="request-container">
-              <div className="user-details">00</div>
-
-              <div className="question-container">
-                <div className="meta-data">You</div>
-                <div className="question">
-                  Tell me about the technology for street and off-street parking
-                  in the document
-                </div>
-              </div>
-            </div>
-            <div className="response-container">
-              <div className="details">
-                <div className="app">
-                  <div className="logo">
-                    <img src="" alt="" />
-                  </div>
-
-                  <div className="main">
-                    <div className="meta-data">Runopt</div>
-
-                    <div className="response">{response}</div>
-                  </div>
-
-                  <div className="rate-response">
-                    <button
-                      className={`like ${isLiked ? 'active' : ''}`}
-                      title="like response"
-                      onClick={handleLike}
-                    >
-                      <img
-                        src={`../images/icons/${
-                          isLiked ? 'like-active' : 'like'
-                        }.svg`}
-                        alt=""
-                      />
-                    </button>
-
-                    <button
-                      className={`dislike ${isDisliked ? 'active' : ''}`}
-                      title="dislike response"
-                      onClick={handleDislike}
-                    >
-                      <img
-                        src={`../images/icons/${
-                          isDisliked ? 'dislike-active' : 'dislike'
-                        }.svg`}
-                        alt=""
-                      />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </main>
 
       <DataReferenceModal
         isOpen={isModalOpen}
-        onClose={handleModalClose}
-        onContinue={handleModalContinue}
+        onClose={() => dispatch(setIsModalOpen(false))}
+        onContinue={() => dispatch(setIsModalOpen(false))}
       />
     </div>
   );

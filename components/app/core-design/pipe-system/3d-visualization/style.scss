@@ -3,9 +3,10 @@
 
   .visualization {
     width: 100%;
-    height: 60vh;
-    background: #fff;
+    min-height: 50vh;
+    background: #080808;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
 

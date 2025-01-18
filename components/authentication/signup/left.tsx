@@ -1,13 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Label from '../ui/label';
 import Input from '../ui/input';
 import Button from '../ui/button';
 import Link from 'next/link';
+import Image from 'next/image';
+import Logo from '@/public/images/logo.svg';
 
 const LeftSignUp = () => {
+  const [companyName, setCompanyName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [agreeTerms, setAgreeTerms] = useState<boolean>(false);
+
   return (
     <div className="left-signup-container">
-      <div className="logo">Runopt</div>
+      <div className="logo">
+        {' '}
+        <Image src={Logo} alt="logo" width={150} height={48} />
+      </div>
 
       <div className="form-container">
         <div className="form-title">
@@ -18,27 +28,29 @@ const LeftSignUp = () => {
         </div>
 
         <div className="form">
-          <div className="field">
+          {/* <div className="field">
             <Label value="Company Name" />
             <Input
               type="text"
               placeHolder="Enter Company Name"
-              value=""
+              value={companyName}
+              defaultValue={companyName}
               name="companyName"
-              defaultValue=""
-              onChange={() => {}}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCompanyName(e.target.value)}
             />
-          </div>
+          </div> */}
 
           <div className="field">
             <Label value="Email" />
             <Input
               type="email"
               placeHolder="Enter Your Email Address"
-              value=""
+              value={email}
+              defaultValue={email}
               name="email"
-              defaultValue=""
-              onChange={() => {}}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setEmail(e.target.value)
+              }
             />
           </div>
 
@@ -46,21 +58,29 @@ const LeftSignUp = () => {
             <Label value="Password" />
             <Input
               type="password"
-              placeHolder=""
-              value=""
+              placeHolder="Enter Your Password"
+              value={password}
+              defaultValue={password}
               name="password"
-              defaultValue=""
-              onChange={() => {}}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setPassword(e.target.value)
+              }
             />
 
-            <img src="../images/icons/view.svg" alt="" />
+            <img src="../images/icons/view.svg" alt="view password" />
           </div>
 
           <div className="agree-terms">
-            <input type="checkbox" placeholder="t" />
+            <input
+              type="checkbox"
+              checked={agreeTerms}
+              onChange={() => setAgreeTerms(!agreeTerms)}
+              title="Accept terms and conditions"
+              aria-label="Accept terms and conditions"
+            />
             <p>
-              You confirm you’ve read and accepted Runopt <a href=""> terms </a>
-              and <a href=""> privacy policy</a>
+              You confirm you’ve read and accepted Runopt <a href="">terms</a>{' '}
+              and <a href="">privacy policy</a>
             </p>
           </div>
 
@@ -77,12 +97,12 @@ const LeftSignUp = () => {
 
         <div className="other-auth-btn">
           <button>
-            <img src="/images/icons/google-icon.svg" alt="" />
+            <img src="/images/icons/google-icon.svg" alt="Google icon" />
             Continue With Google
           </button>
 
           <button id="apple">
-            <img src="/images/icons/apple-icon.svg" alt="" />
+            <img src="/images/icons/apple-icon.svg" alt="Apple icon" />
             Continue With Apple
           </button>
         </div>

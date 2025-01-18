@@ -40,40 +40,44 @@ export const createUploadThunk = (config: UploadConfig) => {
           });
         }
 
-        try {
-          const response = await fetch(config.apiEndpoint, {
-            method: 'POST',
-            headers: {
-              accept: 'application/json',
-            },
-            body: formData,
-          });
+        return new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
 
-          console.log('Upload Response:', response);
+          // Progress tracking
+          xhr.upload.onprogress = (event) => {
+            if (event.lengthComputable) {
+              const percentComplete = (event.loaded / event.total) * 100;
+              dispatch(setSlopeProgress(percentComplete));
+            }
+          };
 
-          if (!response.ok) {
-            const errorData = await response.json().catch(() => null);
-            throw new Error(
-              errorData?.message || response.statusText || 'Upload failed',
-            );
-          }
+          xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              try {
+                const result = JSON.parse(xhr.responseText);
+                resolve(result);
+              } catch (parseError) {
+                reject(new Error('Unable to parse server response'));
+              }
+            } else {
+              reject(new Error(`Upload failed with status ${xhr.status}`));
+            }
+          };
 
-          const result = await response.json();
-          console.log('Upload Result:', result); // Console log the result
-          return result;
-        } catch (error) {
-          console.error('Upload Error:', error); // Console log any errors
-          if (error instanceof Error) {
-            throw error;
-          }
-          throw new Error('Upload failed');
-        }
+          xhr.onerror = () => {
+            reject(new Error('Network error during upload'));
+          };
+
+          xhr.open('POST', config.apiEndpoint, true);
+          xhr.setRequestHeader('Accept', 'application/json');
+
+          xhr.send(formData);
+        });
       } catch (error) {
-        console.error('Upload Preparation Error:', error); // Console log preparation errors
-        if (error instanceof Error) {
-          return rejectWithValue(error.message);
-        }
-        return rejectWithValue('Upload failed');
+        console.error('Upload Preparation Error:', error);
+        return rejectWithValue(
+          error instanceof Error ? error.message : 'Upload failed',
+        );
       }
     },
   );

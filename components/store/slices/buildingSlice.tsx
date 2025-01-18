@@ -30,6 +30,7 @@ export const submitBuildings = createAsyncThunk(
           },
         },
       );
+      console.log('Response from submitBuildings:', response.data);
       return response.data;
     } catch (error: any) {
       const errorMessage =

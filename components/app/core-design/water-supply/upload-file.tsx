@@ -45,7 +45,6 @@ const UploadFile: React.FC<FileUploadProps> = ({
     (state: RootState) => state.uploadWaterFile,
   );
 
-
   useEffect(() => {
     if (fileName && uploadContainerRef.current) {
       uploadContainerRef.current.style.border = '';
@@ -73,11 +72,11 @@ const UploadFile: React.FC<FileUploadProps> = ({
       return;
     }
     if (uploadContainerRef.current) {
-         uploadContainerRef.current.classList.add('error-border-dashed');
+      uploadContainerRef.current.classList.add('error-border-dashed');
 
-         setTimeout(() => {
-           uploadContainerRef.current?.classList.remove('error-border-dashed');
-         }, 1000);
+      setTimeout(() => {
+        uploadContainerRef.current?.classList.remove('error-border-dashed');
+      }, 1000);
     }
     dispatch(
       setWaterFile({
@@ -165,35 +164,35 @@ const UploadFile: React.FC<FileUploadProps> = ({
     }
   };
 
-const handleNext = () => {
-  if (!fileName) {
-    toast.error('Please select a file');
-    if (uploadContainerRef.current) {
-      uploadContainerRef.current.classList.add('error-border-dashed');
-      setTimeout(() => {
-        uploadContainerRef.current?.classList.remove('error-border-dashed');
-      }, 1000);
+  const handleNext = () => {
+    if (!fileName) {
+      toast.error('Please select a file');
+      if (uploadContainerRef.current) {
+        uploadContainerRef.current.classList.add('error-border-dashed');
+        setTimeout(() => {
+          uploadContainerRef.current?.classList.remove('error-border-dashed');
+        }, 1000);
+      }
+      return;
     }
-    return;
-  }
 
-  // If no upload has been initiated or failed, start the upload
-  if (status !== 'uploading' && status !== 'completed') {
-    dispatch(uploadWaterFile(fileName));
-  }
+    // If no upload has been initiated or failed, start the upload
+    if (status !== 'uploading' && status !== 'completed') {
+      dispatch(uploadWaterFile(fileName));
+    }
 
-  // If upload is already completed, proceed to next step
-  if (status === 'completed') {
-    onNext?.();
-  }
-};
+    // If upload is already completed, proceed to next step
+    if (status === 'completed') {
+      onNext?.();
+    }
+  };
 
-// Add a useEffect to handle navigation after successful upload
-useEffect(() => {
-  if (status === 'completed') {
-    onNext?.();
-  }
-}, [status, onNext]);
+  // Add a useEffect to handle navigation after successful upload
+  useEffect(() => {
+    if (status === 'completed') {
+      onNext?.();
+    }
+  }, [status, onNext]);
 
   return (
     <div className="upload-file">

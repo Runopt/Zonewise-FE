@@ -26,7 +26,7 @@ instance.interceptors.request.use(
   },
 );
 
-// Handle responses
+
 instance.interceptors.response.use(
   (response) => response,
   (error) => {

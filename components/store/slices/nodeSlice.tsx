@@ -77,7 +77,6 @@ export const submitNodes = createAsyncThunk(
         },
       });
 
-      // Console log the response
       console.log('API Response:', response.data);
 
       return response.data;

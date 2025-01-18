@@ -11,10 +11,12 @@ import {
   PURGE,
   REGISTER,
 } from 'redux-persist';
+
 import { siteUploadReducer } from './slices/uploadSlice';
 import { pipeUploadReducer } from './slices/uploadPipeSlice';
 import { slopeUploadReducer } from './slices/uploadSlopeSlice';
 import { waterUploadReducer } from './slices/uploadWaterSlice';
+import zoningReducer from './slices/zoningSlice';
 import { plotSlice } from './slices/plotSlice';
 import { buildingSlice } from './slices/buildingSlice';
 import { pathNumberSlice } from './slices/pathNumberSlice';
@@ -33,6 +35,7 @@ const rootReducer = combineReducers({
   building: buildingSlice.reducer,
   path: pathNumberSlice.reducer,
   node: nodeSlice.reducer,
+  zoning: zoningReducer,
   siteSurfaceStepper: siteSurfaceStepperSlice.reducer,
   pipeSystemStepper: pipeSystemStepperSlice.reducer,
   waterSupplyStepper: waterSupplyStepperSlice.reducer,
@@ -42,19 +45,18 @@ const rootReducer = combineReducers({
 const persistConfig = {
   key: 'root',
   storage,
-
   whitelist: [
-    // 'node',
-    // 'upload',
-    // 'path',
-    // 'uploadPipeFile',
-    // 'uploadSlopeFile',
-    // 'uploadWaterFile',
-
-    // 'siteSurfaceStepper',
-    // 'pipeSystemStepper',
-    // 'waterSupplyStepper',
-    // 'siteSurfaceStepper',
+    'node',
+    // 'zoning',
+    'upload',
+    'path',
+    'uploadPipeFile',
+    'uploadSlopeFile',
+    'uploadWaterFile',
+    'siteSurfaceStepper',
+    'pipeSystemStepper',
+    'waterSupplyStepper',
+    'slopeStabilityStepper',
   ],
 };
 

@@ -81,42 +81,41 @@ const FinalDataFrame: React.FC<FinalDataFrameProps> = ({ onBack }) => {
       .join(' ');
   };
 
-return (
-  <div className="final-data-container">
-    <div className="final-data-wrapper">
-      <div className="final-data">
-        <table>
-          <thead>
-            <tr>
-              {csvContent[0]?.map((header, index) => (
-                <th key={index}>{formatHeader(header)}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {csvContent.slice(1).map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                {row.map((cell, cellIndex) => (
-                  <td key={cellIndex}>{cell}</td>
+  return (
+    <div className="final-data-container">
+      <div className="final-data-wrapper">
+        <div className="final-data">
+          <table>
+            <thead>
+              <tr>
+                {csvContent[0]?.map((header, index) => (
+                  <th key={index}>{formatHeader(header)}</th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {csvContent.slice(1).map((row, rowIndex) => (
+                <tr key={rowIndex}>
+                  {row.map((cell, cellIndex) => (
+                    <td key={cellIndex}>{cell}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="cta flex justify-between mt-4">
+        <button id="prev" onClick={onBack}>
+          Back
+        </button>
+        <button id="next" onClick={handleDownload} disabled={!csvData}>
+          DOWNLOAD CSV
+        </button>
       </div>
     </div>
-
-    <div className="cta flex justify-between mt-4">
-      <button id="prev" onClick={onBack}>
-        Back
-      </button>
-      <button id="next" onClick={handleDownload} disabled={!csvData}>
-        DOWNLOAD CSV
-      </button>
-    </div>
-  </div>
-);
-
+  );
 };
 
 export default FinalDataFrame;

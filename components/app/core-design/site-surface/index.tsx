@@ -27,10 +27,7 @@ const SiteSurface: React.FC = () => {
   return (
     <div className="site-surface-container">
       {currentStep === 1 && (
-        <UploadFile
-          fileTypes={['.csv', '.xlsx']}
-          onNext={handleNext}
-        />
+        <UploadFile fileTypes={['.csv', '.xlsx']} onNext={handleNext} />
       )}
       {currentStep === 2 && (
         <PlotGraph onBack={handleBack} onNext={handleNext} />

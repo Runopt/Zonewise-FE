@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Label from '../ui/label';
 import Input from '../ui/input';
 import Button from '../ui/button';
 import Link from 'next/link';
 
 const LeftLogin = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
   return (
     <div className="left-signup-container">
       <div className="logo">Runopt</div>
@@ -23,27 +26,27 @@ const LeftLogin = () => {
             <Input
               type="email"
               placeHolder="Enter Your Email Address"
-              value=""
+              value={email}
+              defaultValue={email}
               name="email"
-              defaultValue=""
-              onChange={() => {}}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
             />
           </div>
 
           <div className="field" id="password">
             <Label value="Password" />
-            <Input 
-              type="password" 
-              placeHolder="" 
-              value="" 
-              name="password" 
-              defaultValue="" 
-              onChange={() => {}} 
+            <Input
+              type="password"
+              placeHolder="Enter Your Password"
+              value={password}
+              defaultValue={password}
+              name="password"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
             />
             <img src="../images/icons/view.svg" alt="" />
           </div>
 
-          <div className="forgot-password">Forogot Password?</div>
+          <div className="forgot-password">Forgot Password?</div>
           <Link href="./email-verification">
             <Button id="sign-in" type="submit" value="Sign In" />
           </Link>

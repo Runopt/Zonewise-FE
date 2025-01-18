@@ -40,9 +40,9 @@ const UploadFile: React.FC<FileUploadProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadContainerRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch<AppDispatch>();
- const { fileName, fileSize, fileType, status, progress, error } = useSelector(
-   (state: RootState) => state.uploadPipeFile,
- );
+  const { fileName, fileSize, fileType, status, progress, error } = useSelector(
+    (state: RootState) => state.uploadPipeFile,
+  );
   // dispatch(setPipeFile(...));
   // dispatch(uploadPipeFile(...));
 
@@ -73,11 +73,11 @@ const UploadFile: React.FC<FileUploadProps> = ({
       return;
     }
     if (uploadContainerRef.current) {
-         uploadContainerRef.current.classList.add('error-border-dashed');
+      uploadContainerRef.current.classList.add('error-border-dashed');
 
-         setTimeout(() => {
-           uploadContainerRef.current?.classList.remove('error-border-dashed');
-         }, 1000);
+      setTimeout(() => {
+        uploadContainerRef.current?.classList.remove('error-border-dashed');
+      }, 1000);
     }
     dispatch(
       setPipeFile({
@@ -168,11 +168,11 @@ const UploadFile: React.FC<FileUploadProps> = ({
   const handleNext = () => {
     if (!fileName) {
       if (uploadContainerRef.current) {
-         uploadContainerRef.current.classList.add('error-border-dashed');
+        uploadContainerRef.current.classList.add('error-border-dashed');
 
-         setTimeout(() => {
-           uploadContainerRef.current?.classList.remove('error-border-dashed');
-         }, 1000);
+        setTimeout(() => {
+          uploadContainerRef.current?.classList.remove('error-border-dashed');
+        }, 1000);
       }
 
       return;

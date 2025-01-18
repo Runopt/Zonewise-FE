@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
+import Logo from '@/public/images/logo.svg'
 
 const Navbar = () => {
   const [pathname, setPathname] = useState('');
@@ -17,7 +19,9 @@ const Navbar = () => {
 
   return (
     <div className="navbar-container">
-      <div className="logo">Runopt</div>
+      <div className="logo">
+        <Image src={Logo} alt='logo' width={100} height={36}/>
+      </div>
 
       <ul>
         <li>
@@ -57,10 +61,6 @@ const Navbar = () => {
       </ul>
 
       <div className="navbar-actions">
-        <div className="search-bar">
-          <input type="Search" placeholder="Search for anything" />
-          <img src="../images/icons/search.svg" alt="" />
-        </div>
 
         <div className="notification">
           <button title="notification">

@@ -30,11 +30,7 @@ const PipeSystem = () => {
       )}
       {currentStep === 2 && <Node onBack={handleBack} onNext={handleNext} />}
       {currentStep === 3 && (
-        <ThreeDVisualizatiaon
-          onBack={handleBack}
-          onNext={handleNext}
-
-        />
+        <ThreeDVisualizatiaon onBack={handleBack} onNext={handleNext} />
       )}
     </div>
   );

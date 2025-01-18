@@ -39,18 +39,15 @@ const BuildingInformation: React.FC<BuildingInformationProps> = ({
   const formContainerRef = useRef<HTMLDivElement>(null);
   const isSubmitting = status === 'loading';
 
-
   useEffect(() => {
     dispatch(setEditingBuilding(null));
   }, [dispatch]);
-
 
   useEffect(() => {
     if (status === 'succeeded') {
       onNext();
     }
   }, [status, onNext]);
-
 
   useEffect(() => {
     if (editingIndex !== null && buildings[editingIndex]) {
@@ -101,7 +98,6 @@ const BuildingInformation: React.FC<BuildingInformationProps> = ({
         }),
       );
     }
-
   };
 
   const handleEditBuilding = (index: number) => {
@@ -113,26 +109,25 @@ const BuildingInformation: React.FC<BuildingInformationProps> = ({
   };
 
   const handleSubmit = async () => {
-     if (buildings.length === 0) {
-       toast.error('Please add at least one building before submitting');
-       return;
-     }
+    if (buildings.length === 0) {
+      toast.error('Please add at least one building before submitting');
+      return;
+    }
 
-     if (!sessionId) {
-       toast.error('No session ID available. Please upload a file first.');
-       return;
-     }
+    if (!sessionId) {
+      toast.error('No session ID available. Please upload a file first.');
+      return;
+    }
 
-     const requestBody = new URLSearchParams();
-     requestBody.append('session_id', sessionId);
-     requestBody.append('buildings_json', JSON.stringify(buildings));
+    const requestBody = new URLSearchParams();
+    requestBody.append('session_id', sessionId);
+    requestBody.append('buildings_json', JSON.stringify(buildings));
 
-     try {
-       await dispatch(submitBuildings(requestBody)).unwrap();
-
-     } catch (error) {
-       console.error('Detailed Submission Error:', error);
-     }
+    try {
+      await dispatch(submitBuildings(requestBody)).unwrap();
+    } catch (error) {
+      console.error('Detailed Submission Error:', error);
+    }
   };
 
   return (

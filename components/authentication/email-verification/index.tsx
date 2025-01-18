@@ -1,4 +1,4 @@
-import React, { useState, useRef, ChangeEvent, useEffect } from 'react';
+import React, { useState, useRef, ChangeEvent } from 'react';
 import Button from '../ui/button';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -10,6 +10,7 @@ interface OTPInputProps {
 const EmailVerificationContainer: React.FC<OTPInputProps> = ({ length }) => {
   const [otp, setOTP] = useState<string[]>(new Array(length).fill(''));
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
+  const router = useRouter();
 
   const handleChange = (
     index: number,
@@ -33,6 +34,11 @@ const EmailVerificationContainer: React.FC<OTPInputProps> = ({ length }) => {
     }
   };
 
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    router.back(); // Navigates back to the previous page
+  };
+
   const userEmail = 'olak******@gmail.com';
   const refreshSecs = 22;
 
@@ -41,14 +47,14 @@ const EmailVerificationContainer: React.FC<OTPInputProps> = ({ length }) => {
       <div className="logo">Runopt</div>
 
       <div className="form-container">
-        <button title="back-btn" className="back-btn">
-          <img src="../images/icons/arrow-left.svg" alt="" />
+        <button title="back-btn" className="back-btn" onClick={handleClick}>
+          <img src="../images/icons/arrow-left.svg" alt="Back" />
         </button>
 
         <div className="form-title">
           <h3>Verify Email</h3>
           <p>
-            OTP has been sent to <a href=""> {userEmail}</a>, check your email
+            OTP has been sent to <a href="#">{userEmail}</a>, check your email.
           </p>
         </div>
         <div className="form">
@@ -74,7 +80,7 @@ const EmailVerificationContainer: React.FC<OTPInputProps> = ({ length }) => {
           <img
             className="refresh-icon"
             src="/images/icons/refresh.svg"
-            alt=""
+            alt="Refresh"
           />
           <p>Resend Code in {refreshSecs} Secs</p>
         </div>

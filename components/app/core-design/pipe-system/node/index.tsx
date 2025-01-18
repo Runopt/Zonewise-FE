@@ -84,13 +84,18 @@ const Node: React.FC<NodeProps> = ({ onBack, onNext }) => {
                   <input
                     type="number"
                     placeholder={coord}
-                    value={supplyNode[coord as keyof typeof supplyNode] || ''}
+                    value={
+                      supplyNode[
+                        coord as keyof typeof supplyNode
+                      ]?.toString() || ''
+                    }
                     onChange={(e) =>
                       dispatch(
                         updateSupplyNode({
-                          [coord]: e.target.value
-                            ? Number(e.target.value)
-                            : null,
+                          [coord]:
+                            e.target.value === ''
+                              ? null
+                              : Number(e.target.value),
                         }),
                       )
                     }
@@ -110,15 +115,16 @@ const Node: React.FC<NodeProps> = ({ onBack, onNext }) => {
                     <input
                       type="number"
                       placeholder={coord}
-                      value={node[coord as keyof typeof node] || ''}
+                      value={node[coord as keyof typeof node]?.toString() || ''}
                       onChange={(e) =>
                         dispatch(
                           updateUseNode({
                             index,
                             node: {
-                              [coord]: e.target.value
-                                ? Number(e.target.value)
-                                : null,
+                              [coord]:
+                                e.target.value === ''
+                                  ? null
+                                  : Number(e.target.value),
                             },
                           }),
                         )

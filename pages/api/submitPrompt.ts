@@ -1,11 +1,9 @@
-// pages/api/submitPrompt.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     const { prompt } = req.body;
 
-    // Simulated detailed response including the question
     const simulatedResponse = `
       DATA BREACHES IN NIGERIA: THE CASE OF THE NATIONAL IDENTIFICATION NUMBER 
       There have been suspicions of a data breach on the database of the National Identity Management Commission (NIMC), the Commission responsible for establishing a National identity data base and issuing identity cards. These suspicions were fueled by reports from the Foundation for Investigative Journalism (FIJ) which reported that the data of Nigerians embodied in their National Identification Number(s) (NIN) had been publicly disclosed. NIMC has since debunked these reports by simply denying its occurrence. However, available evidence suggests otherwise as several websites publicly offered the NIN for sale before they were eventually taken down. If the breach did occur, as supported by available evidence, such breach has the potential to put the data of over a hundred million Nigerian citizens at risk. 

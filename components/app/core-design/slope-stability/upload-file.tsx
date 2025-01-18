@@ -45,7 +45,6 @@ const UploadFile: React.FC<FileUploadProps> = ({
     (state: RootState) => state.uploadSlopeFile,
   );
 
-
   useEffect(() => {
     if (fileName && uploadContainerRef.current) {
       uploadContainerRef.current.style.border = '';
@@ -73,11 +72,11 @@ const UploadFile: React.FC<FileUploadProps> = ({
       return;
     }
     if (uploadContainerRef.current) {
-         uploadContainerRef.current.classList.add('error-border-dashed');
+      uploadContainerRef.current.classList.add('error-border-dashed');
 
-         setTimeout(() => {
-           uploadContainerRef.current?.classList.remove('error-border-dashed');
-         }, 1000);
+      setTimeout(() => {
+        uploadContainerRef.current?.classList.remove('error-border-dashed');
+      }, 1000);
     }
     dispatch(
       setSlopeFile({
@@ -167,31 +166,33 @@ const UploadFile: React.FC<FileUploadProps> = ({
 
   const handleNext = () => {
     if (!fileName) {
+      // Visual error feedback
       if (uploadContainerRef.current) {
-         uploadContainerRef.current.classList.add('error-border-dashed');
-
-         setTimeout(() => {
-           uploadContainerRef.current?.classList.remove('error-border-dashed');
-         }, 1000);
+        uploadContainerRef.current.classList.add('error-border-dashed');
+        setTimeout(() => {
+          uploadContainerRef.current?.classList.remove('error-border-dashed');
+        }, 1000);
       }
-
+      toast.error('Please select a file first');
       return;
     }
 
     if (status !== 'uploading' && status !== 'completed') {
-      dispatch(uploadSlopeFile(fileName));
+      dispatch(uploadSlopeFile(fileName)).catch((error) => {
+        console.error('Upload failed:', error);
+        toast.error('File upload failed. Please try again.');
+      });
     }
 
     if (status === 'completed') {
       onNext?.();
     }
   };
-
-    useEffect(() => {
-      if (status === 'completed') {
-        onNext?.();
-      }
-    }, [status, onNext]);
+  useEffect(() => {
+    if (status === 'completed') {
+      onNext?.();
+    }
+  }, [status, onNext]);
 
   return (
     <div className="upload-file">
@@ -209,7 +210,7 @@ const UploadFile: React.FC<FileUploadProps> = ({
       >
         <input
           type="file"
-          name='file'
+          name="file"
           ref={fileInputRef}
           onChange={handleFileInput}
           accept=".csv, .xlsx"
@@ -234,7 +235,9 @@ const UploadFile: React.FC<FileUploadProps> = ({
             alt="Template"
           />
           <div className="text">
-            <div className="title">Slope Stability Surface Information Template</div>
+            <div className="title">
+              Slope Stability Surface Information Template
+            </div>
             <div className="desc">
               Download and use it as a starting point for your site information.
             </div>
