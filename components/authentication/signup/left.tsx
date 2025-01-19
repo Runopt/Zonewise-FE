@@ -5,57 +5,95 @@ import Button from '../ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
 import Logo from '@/public/images/logo.svg';
-import axios, { API_ENDPOINTS } from '@/utils/axios';
+import axios from '@/utils/axios';
+import { API_ENDPOINTS } from '@/utils/axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const LeftSignUp = () => {
   const [companyName, setCompanyName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [agreeTerms, setAgreeTerms] = useState<boolean>(false);
-  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<boolean>(false);
+  const [passwordError, setPasswordError] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const isValidEmail = (email: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const isValidPassword = (password: string) =>
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
+      password,
+    );
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    setEmailError(false);
+    setPasswordError(false);
+
+    if (!isValidEmail(email)) {
+      setEmailError(true);
+      toast.error('Invalid email format. Example: example@domain.com', {
+        position: 'top-right',
+      });
+      return;
+    }
+
+    if (!isValidPassword(password)) {
+      setPasswordError(true);
+      toast.error(
+        'Password must be at least 8 characters, include uppercase, lowercase, number, and special character.',
+        { position: 'top-right' },
+      );
+      return;
+    }
+
     if (!agreeTerms) {
-      setAlertMessage('You must agree to the terms and conditions');
+      toast.error('You must agree to the terms and conditions', {
+        position: 'top-right',
+      });
       return;
     }
 
     try {
-      const response = await axios.post(API_ENDPOINTS.SIGNUP, {
-        companyName,
-        email,
-        password,
-      });
-      setAlertMessage('Signup successful! Please check your email for verification.');
-    } catch (error) {
-      if (error.response && error.response.data) {
-        setAlertMessage(error.response.data.detail || error.response.data.message);
+      await axios.post(API_ENDPOINTS.SIGNUP, { companyName, email, password });
+
+      toast.success(
+        'Signup successful! Please check your email for verification.',
+        { position: 'top-right' },
+      );
+    } catch (error: any) {
+      if (error.response?.data) {
+        toast.error(error.response.data.detail || error.response.data.message, {
+          position: 'top-right',
+        });
       } else {
-        setAlertMessage('An unexpected error occurred. Please try again.');
+        toast.error('An unexpected error occurred. Please try again.', {
+          position: 'top-right',
+        });
       }
     }
   };
 
   return (
     <div className="left-signup-container">
+      <ToastContainer />
       <div className="logo">
-        <Image src={Logo} alt="logo" width={150} height={48} />
+        <Image src={Logo} alt="logo" width={120} height={48} />
       </div>
-
       <div className="form-container">
         <div className="form-title">
           <h3>Create your account</h3>
           <p>
-            Already have an account? <a href="/login">Sign In</a>
+            Already have an account? <Link href="/login">Sign In</Link>
           </p>
         </div>
-
-        {alertMessage && (
-          <div className="server-alert" style={{ color: 'red', marginBottom: '10px' }}>
-            {alertMessage}
-          </div>
-        )}
 
         <form className="form" onSubmit={handleSignUp}>
           <div className="field">
@@ -64,28 +102,38 @@ const LeftSignUp = () => {
               type="email"
               placeHolder="Enter Your Email Address"
               value={email}
-              defaultValue={email}
               name="email"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setEmail(e.target.value)
-              }
+              className={emailError ? 'error' : ''}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                setEmail(e.target.value);
+                setEmailError(false);
+              }}
             />
           </div>
 
           <div className="field" id="password">
             <Label value="Password" />
             <Input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               placeHolder="Enter Your Password"
               value={password}
-              defaultValue={password}
               name="password"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setPassword(e.target.value)
-              }
+              className={passwordError ? 'error' : ''}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                setPassword(e.target.value);
+                setPasswordError(false);
+              }}
             />
-
-            <img src="../images/icons/view.svg" alt="view password" />
+            <img
+              src={
+                showPassword
+                  ? '/images/icons/close-view.svg'
+                  : '/images/icons/view.svg'
+              }
+              alt="Toggle password visibility"
+              onClick={togglePasswordVisibility}
+              className="password-toggle-icon"
+            />
           </div>
 
           <div className="agree-terms">
@@ -117,10 +165,6 @@ const LeftSignUp = () => {
             Continue With Google
           </button>
 
-          <button id="apple">
-            <img src="/images/icons/apple-icon.svg" alt="Apple icon" />
-            Continue With Apple
-          </button>
         </div>
       </div>
     </div>

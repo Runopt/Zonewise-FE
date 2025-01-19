@@ -4,7 +4,7 @@ interface InputProps {
   placeHolder: string;
   type: string;
   value: string;
-  defaultValue: string;
+  className?: string;
   onChange: any;
   name: string;
 }
@@ -15,7 +15,7 @@ const Input: React.FC<InputProps> = ({
   value,
   onChange,
   name,
-  defaultValue,
+  className = '',
 }) => {
   return (
     <div className="form-input-container">
@@ -24,7 +24,7 @@ const Input: React.FC<InputProps> = ({
         placeholder={placeHolder}
         name={name}
         value={value}
-        defaultValue={defaultValue}
+        className={className}
         onChange={onChange}
       />
     </div>

@@ -1,16 +1,25 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
+import Logo from '@/public/images/logo.svg';
+import Image from 'next/image';
 import Label from '../ui/label';
 import Input from '../ui/input';
 import Button from '../ui/button';
 import Link from 'next/link';
-import axios, { API_ENDPOINTS } from '@/utils/axios';
+import axios from '@/utils/axios';
+import { API_ENDPOINTS } from '@/utils/axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const LeftLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,32 +30,46 @@ const LeftLogin = () => {
         password,
       });
       console.log('Login successful:', response.data);
-      setAlertMessage('Login successful!');
-      console.log('Navigating to /home');
-      router.push('/home');
-    } catch (error) {
+
+      toast.success('Login successful! Redirecting...', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+
+      setTimeout(() => {
+        router.push('/home');
+      }, 3000);
+    } catch (error: any) {
       console.error('Login error:', error);
-      if (error.response && error.response.data) {
-        setAlertMessage(error.response.data.detail || error.response.data.message);
+
+      if (error.response?.data) {
+        toast.error(error.response.data.detail || error.response.data.message, {
+          position: 'top-right',
+          autoClose: 5000,
+        });
       } else {
-        setAlertMessage('An unexpected error occurred. Please try again.');
+        toast.error('An unexpected error occurred. Please try again.', {
+          position: 'top-right',
+          autoClose: 5000,
+        });
       }
     }
   };
 
   return (
     <div className="left-signup-container">
-      <div className="logo">Runopt</div>
-
+      <ToastContainer />
+      <div className="logo">
+        <Image src={Logo} alt="logo" width={120} height={48} />
+      </div>
       <div className="form-container">
         <div className="form-title">
           <h3>Sign in to your account</h3>
           <p>
-            Don’t have an account yet?<a href="/"> Sign Up</a>
+            Don’t have an account yet?
+            <Link href="/"> Sign Up</Link>
           </p>
         </div>
-
-        {alertMessage && <div className="server-alert">{alertMessage}</div>}
 
         <form className="form" onSubmit={handleLogin}>
           <div className="field">
@@ -55,23 +78,35 @@ const LeftLogin = () => {
               type="email"
               placeHolder="Enter Your Email Address"
               value={email}
-              defaultValue={email}
               name="email"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setEmail(e.target.value)
+              }
             />
           </div>
 
           <div className="field" id="password">
             <Label value="Password" />
+
             <Input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               placeHolder="Enter Your Password"
               value={password}
-              defaultValue={password}
               name="password"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setPassword(e.target.value)
+              }
             />
-            <img src="../images/icons/view.svg" alt="" />
+            <img
+              src={
+                showPassword
+                  ? '/images/icons/close-view.svg'
+                  : '/images/icons/view.svg'
+              }
+              alt="Toggle password visibility"
+              onClick={togglePasswordVisibility}
+              className="password-toggle-icon"
+            />
           </div>
 
           <div className="forgot-password">Forgot Password?</div>
@@ -88,11 +123,6 @@ const LeftLogin = () => {
           <button>
             <img src="/images/icons/google-icon.svg" alt="" />
             Continue With Google
-          </button>
-
-          <button id="apple">
-            <img src="/images/icons/apple-icon.svg" alt="" />
-            Continue With Apple
           </button>
         </div>
       </div>
