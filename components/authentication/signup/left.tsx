@@ -5,17 +5,41 @@ import Button from '../ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
 import Logo from '@/public/images/logo.svg';
+import axios, { API_ENDPOINTS } from '@/utils/axios';
 
 const LeftSignUp = () => {
   const [companyName, setCompanyName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [agreeTerms, setAgreeTerms] = useState<boolean>(false);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!agreeTerms) {
+      setAlertMessage('You must agree to the terms and conditions');
+      return;
+    }
+
+    try {
+      const response = await axios.post(API_ENDPOINTS.SIGNUP, {
+        companyName,
+        email,
+        password,
+      });
+      setAlertMessage('Signup successful! Please check your email for verification.');
+    } catch (error) {
+      if (error.response && error.response.data) {
+        setAlertMessage(error.response.data.detail || error.response.data.message);
+      } else {
+        setAlertMessage('An unexpected error occurred. Please try again.');
+      }
+    }
+  };
 
   return (
     <div className="left-signup-container">
       <div className="logo">
-        {' '}
         <Image src={Logo} alt="logo" width={150} height={48} />
       </div>
 
@@ -27,19 +51,13 @@ const LeftSignUp = () => {
           </p>
         </div>
 
-        <div className="form">
-          {/* <div className="field">
-            <Label value="Company Name" />
-            <Input
-              type="text"
-              placeHolder="Enter Company Name"
-              value={companyName}
-              defaultValue={companyName}
-              name="companyName"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCompanyName(e.target.value)}
-            />
-          </div> */}
+        {alertMessage && (
+          <div className="server-alert" style={{ color: 'red', marginBottom: '10px' }}>
+            {alertMessage}
+          </div>
+        )}
 
+        <form className="form" onSubmit={handleSignUp}>
           <div className="field">
             <Label value="Email" />
             <Input
@@ -84,10 +102,8 @@ const LeftSignUp = () => {
             </p>
           </div>
 
-          <Link href="./email-verification">
-            <Button type="submit" id="create-account" value="Create Account" />
-          </Link>
-        </div>
+          <Button type="submit" id="create-account" value="Create Account" />
+        </form>
 
         <div className="or">
           <div className="border"></div>
