@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Logo from '@/public/images/logo.svg';
 import Image from 'next/image';
@@ -6,8 +6,7 @@ import Label from '../ui/label';
 import Input from '../ui/input';
 import Button from '../ui/button';
 import Link from 'next/link';
-import axios from '@/utils/axios';
-import { API_ENDPOINTS } from '@/utils/axios';
+import { useSignIn, useClerk, useAuth } from '@clerk/nextjs';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -16,6 +15,16 @@ const LeftLogin = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+  const { signIn, isLoaded } = useSignIn();
+  const { signOut } = useClerk();
+  const { isSignedIn } = useAuth();
+
+  // Check for existing session and redirect
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      router.replace('/home');
+    }
+  }, [isLoaded, isSignedIn, router]);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -23,38 +32,61 @@ const LeftLogin = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isLoaded) return;
 
     try {
-      const response = await axios.post(API_ENDPOINTS.LOGIN, {
-        email,
+      // Now attempt to sign in
+      const result = await signIn.create({
+        identifier: email,
         password,
       });
-      console.log('Login successful:', response.data);
 
-      toast.success('Login successful! Redirecting...', {
-        position: 'top-right',
-        autoClose: 3000,
-      });
-
-      setTimeout(() => {
-        router.push('/home');
-      }, 3000);
-    } catch (error: any) {
-      console.error('Login error:', error);
-
-      if (error.response?.data) {
-        toast.error(error.response.data.detail || error.response.data.message, {
+      if (result.status === 'complete') {
+        toast.success('Login successful! Redirecting...', {
           position: 'top-right',
-          autoClose: 5000,
+          autoClose: 2000,
         });
+
+        setTimeout(() => {
+          router.push('/home');
+        }, 2000);
       } else {
-        toast.error('An unexpected error occurred. Please try again.', {
+        toast.error('Login failed. Please check your credentials.', {
           position: 'top-right',
-          autoClose: 5000,
         });
       }
+    } catch (error: any) {
+      toast.error(error.message || 'Invalid credentials', {
+        position: 'top-right',
+      });
     }
   };
+
+  const handleGoogleLogin = async () => {
+    if (!isLoaded) return;
+
+    try {
+      await signIn.authenticateWithRedirect({
+        strategy: 'oauth_google',
+        redirectUrl: '/login',
+        redirectUrlComplete: '/home',
+      });
+    } catch (error: any) {
+      toast.error(error.message || 'Google login failed', {
+        position: 'top-right',
+      });
+    }
+  };
+
+  // Show loading state while checking auth status
+  if (!isLoaded) {
+    return <div className="loading-state">Loading...</div>;
+  }
+
+  // If already signed in, show redirect message
+  if (isSignedIn) {
+    return <div className="loading-state">Redirecting to home...</div>;
+  }
 
   return (
     <div className="left-signup-container">
@@ -66,8 +98,8 @@ const LeftLogin = () => {
         <div className="form-title">
           <h3>Sign in to your account</h3>
           <p>
-            Don’t have an account yet?
-            <Link href="/"> Sign Up</Link>
+            Don't have an account yet?
+            <Link href="/signup"> Sign Up</Link>
           </p>
         </div>
 
@@ -87,7 +119,6 @@ const LeftLogin = () => {
 
           <div className="field" id="password">
             <Label value="Password" />
-
             <Input
               type={showPassword ? 'text' : 'password'}
               placeHolder="Enter Your Password"
@@ -109,7 +140,9 @@ const LeftLogin = () => {
             />
           </div>
 
-          <div className="forgot-password">Forgot Password?</div>
+          <div className="forgot-password">
+            <Link href="/forgot-password">Forgot Password?</Link>
+          </div>
           <Button id="sign-in" type="submit" value="Sign In" />
         </form>
 
@@ -120,8 +153,8 @@ const LeftLogin = () => {
         </div>
 
         <div className="other-auth-btn">
-          <button>
-            <img src="/images/icons/google-icon.svg" alt="" />
+          <button type="button" onClick={handleGoogleLogin}>
+            <img src="/images/icons/google-icon.svg" alt="Google icon" />
             Continue With Google
           </button>
         </div>
