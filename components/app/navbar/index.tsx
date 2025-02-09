@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import Logo from '@/public/images/logo.svg'
+import Logo from '@/public/images/logo.svg';
+import { useUser, useClerk } from '@clerk/nextjs';
+import { useRouter } from 'next/router';
 
 const Navbar = () => {
   const [pathname, setPathname] = useState('');
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const { user } = useUser();
+  const { signOut } = useClerk();
+  const router = useRouter();
 
   useEffect(() => {
     setPathname(window.location.pathname);
@@ -15,6 +21,20 @@ const Navbar = () => {
     inactiveIcon: string,
   ) => {
     return pathname === path ? activeIcon : inactiveIcon;
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.push('/login');
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   return (
@@ -61,14 +81,34 @@ const Navbar = () => {
       </ul>
 
       <div className="navbar-actions">
-
         <div className="notification">
           <button title="notification">
             <img src="../images/icons/notification.svg" alt="" />
           </button>
         </div>
 
-        <div className="user-profile-icon">OO</div>
+        <div className="user-menu-container">
+          <div 
+            className="user-profile-icon" 
+            onClick={() => setShowUserMenu(!showUserMenu)}
+          >
+            {user?.firstName ? getInitials(user.firstName + ' ' + (user.lastName || '')) : 'OO'}
+          </div>
+          
+          {showUserMenu && (
+            <div className="user-menu">
+              <div className="user-info">
+                <div className="user-name">{user?.firstName} {user?.lastName}</div>
+                <div className="user-email">{user?.emailAddresses[0].emailAddress}</div>
+              </div>
+              <div className="menu-divider"></div>
+              <button onClick={handleSignOut} className="sign-out-btn">
+                <img src="/images/icons/logout.png" width={18} height={18} alt="Sign out" />
+                Sign Out
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

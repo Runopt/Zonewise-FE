@@ -11,7 +11,6 @@
   align-items: center;
   background: $bgBlack;
 
-
   ul {
     display: flex;
     gap: 54px;
@@ -85,28 +84,121 @@
         background: rgba(255, 255, 255, 0.1);
         border: none;
         outline: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.15);
+        }
       }
     }
 
-    .user-profile-icon {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 42px;
-      width: 42px;
-      border-radius: 4px;
-      background: var(
-        --grad,
-        linear-gradient(255deg, #355be0 0%, #b945cc 100%)
-      );
+    .user-menu-container {
+      position: relative;
+      height: 48px;
 
-      color: #fff;
-      text-align: center;
-      font-family: 'Inter Tight';
-      font-size: 20px;
-      font-style: normal;
-      font-weight: 700;
-      line-height: normal;
+      .user-profile-icon {
+        height: 48px;
+        width: 48px;
+        border-radius: 8px;
+        background: linear-gradient(255deg, #355be0 0%, #b945cc 100%);
+        color: #fff;
+        text-align: center;
+        font-family: 'Inter Tight';
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+          opacity: 0.9;
+          transform: scale(1.05);
+        }
+      }
+
+      .user-menu {
+        position: fixed;
+        top: 80px;
+        right: 50px;
+        min-width: 280px;
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+        background: #1a1a1a;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 1.25rem;
+        z-index: 1000;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+
+        &::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        &::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 4px;
+        }
+
+        .user-info {
+          padding-bottom: 1rem;
+
+          .user-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.5rem;
+            font-family: 'Inter Tight';
+          }
+
+          .user-email {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-family: 'Inter Tight';
+          }
+        }
+
+        .menu-divider {
+          height: 1px;
+          background-color: rgba(255, 255, 255, 0.1);
+          margin: 0.75rem -1.25rem;
+        }
+
+        .sign-out-btn {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 0.875rem 1rem;
+          background: transparent;
+          border: none;
+          color: #ef4444;
+          font-size: 1rem;
+          font-weight: 500;
+          font-family: 'Inter Tight';
+          cursor: pointer;
+          border-radius: 6px;
+          transition: all 0.2s ease;
+
+          img {
+            width: 18px;
+            height: 18px;
+            object-fit: contain;
+            display: block;
+          }
+
+          &:hover {
+            background-color: rgba(239, 68, 68, 0.15);
+          }
+        }
+      }
     }
   }
 }
