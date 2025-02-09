@@ -12,7 +12,6 @@ export default authMiddleware({
     "/email-verification",
     "/api/trpc(.*)",
     "/api/webhook(.*)",
-    "/home"  // Temporarily add this to debug
   ],
   // Routes that can always be accessed, and have no authentication information
   ignoredRoutes: [
