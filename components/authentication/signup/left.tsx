@@ -98,12 +98,14 @@ const LeftSignUp = () => {
       });
 
       if (completeSignUp.status === 'complete') {
-        toast.success('Account created successfully!', {
+        toast.success('Account created successfully! Redirecting...', {
           position: 'top-right',
+          autoClose: 2000,
         });
-        // Wait for the toast to show before redirecting
+        
+        // Force redirect to home page
         setTimeout(() => {
-          router.push('/login');
+          window.location.replace('/home');
         }, 2000);
       } else {
         toast.error('Verification failed. Please try again.', {
@@ -123,8 +125,8 @@ const LeftSignUp = () => {
     try {
       await signUp.authenticateWithRedirect({
         strategy: 'oauth_google',
-        redirectUrl: '/signup',
-        redirectUrlComplete: '/',
+        redirectUrl: `${window.location.origin}/sso-callback`,
+        redirectUrlComplete: `${window.location.origin}/home`
       });
     } catch (error: any) {
       toast.error(error.message || 'Google signup failed', {

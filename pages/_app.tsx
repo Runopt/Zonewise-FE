@@ -42,6 +42,8 @@ export default function App({ Component, pageProps }: AppProps) {
       navigate={(to) => router.push(to)}
       afterSignInUrl="/home"
       afterSignUpUrl="/home"
+      signInUrl="/login"
+      signUpUrl="/signup"
     >
       <Provider store={store}>
         <PersistGate loading={<LoadingPage />} persistor={persistor}>
