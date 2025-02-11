@@ -25,9 +25,20 @@ export default authMiddleware({
   // Enable debug for OAuth troubleshooting
   debug: true,
   afterAuth(auth, req) {
-    // If the user is signed in and trying to access auth pages, redirect them to home
+    // Handle users who aren't authenticated
+    if (!auth.userId && !auth.isPublicRoute) {
+      const loginUrl = new URL('/login', req.url);
+      return Response.redirect(loginUrl);
+    }
+
+    // If user is signed in and trying to access auth pages or root, redirect to home
     if (auth.userId && ['/login', '/signup', '/'].includes(req.nextUrl.pathname)) {
       return Response.redirect(new URL('/home', req.url));
+    }
+
+    // If user is not signed in and trying to access protected routes, redirect to login
+    if (!auth.userId && ['/home', '/zoning', '/insights'].includes(req.nextUrl.pathname)) {
+      return Response.redirect(new URL('/login', req.url));
     }
   }
 });
