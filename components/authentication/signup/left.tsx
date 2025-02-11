@@ -100,13 +100,13 @@ const LeftSignUp = () => {
       if (completeSignUp.status === 'complete') {
         toast.success('Account created successfully! Redirecting...', {
           position: 'top-right',
-          autoClose: 2000,
+          autoClose: 400,
         });
         
         // Force redirect to home page
         setTimeout(() => {
           window.location.replace('/home');
-        }, 2000);
+        }, 400);
       } else {
         toast.error('Verification failed. Please try again.', {
           position: 'top-right',

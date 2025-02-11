@@ -28,13 +28,21 @@ const Navbar = () => {
     router.push('/login');
   };
 
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(part => part[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
+  const getInitials = () => {
+    if (user?.firstName) {
+      // Get initials from first and last name
+      return (user.firstName + ' ' + (user.lastName || ''))
+        .split(' ')
+        .map(part => part[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2);
+    } else if (user?.emailAddresses[0]?.emailAddress) {
+      // Get initials from email (first two characters)
+      const email = user.emailAddresses[0].emailAddress;
+      return email.substring(0, 2).toUpperCase();
+    }
+    return 'GU'; // Guest User fallback
   };
 
   return (
@@ -92,14 +100,18 @@ const Navbar = () => {
             className="user-profile-icon" 
             onClick={() => setShowUserMenu(!showUserMenu)}
           >
-            {user?.firstName ? getInitials(user.firstName + ' ' + (user.lastName || '')) : 'OO'}
+            {getInitials()}
           </div>
           
           {showUserMenu && (
             <div className="user-menu">
               <div className="user-info">
-                <div className="user-name">{user?.firstName} {user?.lastName}</div>
-                <div className="user-email">{user?.emailAddresses[0].emailAddress}</div>
+                <div className="user-name">
+                  {user?.firstName 
+                    ? `${user.firstName} ${user.lastName || ''}`
+                    : user?.emailAddresses[0]?.emailAddress || 'Guest User'}
+                </div>
+                <div className="user-email">{user?.emailAddresses[0]?.emailAddress}</div>
               </div>
               <div className="menu-divider"></div>
               <button onClick={handleSignOut} className="sign-out-btn">

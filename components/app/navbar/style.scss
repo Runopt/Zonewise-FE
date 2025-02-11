@@ -126,7 +126,7 @@
         right: 50px;
         min-width: 280px;
         max-height: calc(100vh - 100px);
-        overflow-y: auto;
+        overflow: hidden;
         background: #1a1a1a;
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 12px;
@@ -134,18 +134,18 @@
         z-index: 1000;
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 
-        &::-webkit-scrollbar {
-          width: 8px;
-        }
+        // &::-webkit-scrollbar {
+        //   width: 80px;
+        // }
 
-        &::-webkit-scrollbar-track {
-          background: transparent;
-        }
+        // &::-webkit-scrollbar-track {
+        //   background: transparent;
+        // }
 
-        &::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.2);
-          border-radius: 4px;
-        }
+        // &::-webkit-scrollbar-thumb {
+        //   background: rgba(255, 255, 255, 0.2);
+        //   border-radius: 4px;
+        // }
 
         .user-info {
           padding-bottom: 1rem;

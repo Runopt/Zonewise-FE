@@ -35,7 +35,7 @@ const LeftLogin = () => {
     if (!isLoaded) return;
 
     try {
-      // Now attempt to sign in
+      // Attempt to sign in
       const result = await signIn.create({
         identifier: email,
         password,
@@ -44,12 +44,14 @@ const LeftLogin = () => {
       if (result.status === 'complete') {
         toast.success('Login successful! Redirecting...', {
           position: 'top-right',
-          autoClose: 2000,
+          autoClose: 400,
         });
 
-        setTimeout(() => {
-          router.push('/home');
-        }, 2000);
+        // Wait for session to be established
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Use window.location for a full page reload
+        window.location.href = '/home';
       } else {
         toast.error('Login failed. Please check your credentials.', {
           position: 'top-right',
@@ -68,8 +70,8 @@ const LeftLogin = () => {
     try {
       await signIn.authenticateWithRedirect({
         strategy: 'oauth_google',
-        redirectUrl: '/login',
-        redirectUrlComplete: '/home',
+        redirectUrl: `${window.location.origin}/sso-callback`,
+        redirectUrlComplete: `${window.location.origin}/home`
       });
     } catch (error: any) {
       toast.error(error.message || 'Google login failed', {
