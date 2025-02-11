@@ -4,39 +4,50 @@ import { authMiddleware } from "@clerk/nextjs";
 // Please edit this to allow other routes to be public as needed.
 // See https://clerk.com/docs/references/nextjs/auth-middleware for more information about configuring your middleware
 export default authMiddleware({
-  // Routes that can be accessed while signed out
+  // Only these routes will be accessible without authentication
   publicRoutes: [
-    "/",
     "/login",
     "/signup",
-    "/email-verification",
+    "/forgot-password",
+    "/reset-password",
     "/sso-callback",
-    "/api/trpc(.*)",
-    "/api/webhook(.*)"
   ],
-  // Routes that can always be accessed, and have no authentication information
+  
+  // Routes that don't require authentication information
   ignoredRoutes: [
     "/api/webhook(.*)",
     "/_next(.*)",
     "/static(.*)",
     "/favicon.ico",
-    "/images(.*)"
+    "/images(.*)",
   ],
+
   // Enable debug for OAuth troubleshooting
   debug: true,
+
   afterAuth(auth, req) {
-    // If the user is signed in and trying to access auth pages, redirect them to home
+    // Handle users who aren't authenticated
+    if (!auth.userId && !auth.isPublicRoute) {
+      // Redirect them to login
+      const loginUrl = new URL('/login', req.url);
+      return Response.redirect(loginUrl);
+    }
+
+    // If the user is signed in and trying to access auth pages, redirect them home
     if (auth.userId && ['/login', '/signup', '/'].includes(req.nextUrl.pathname)) {
-      return Response.redirect(new URL('/home', req.url));
+      const homeUrl = new URL('/home', req.url);
+      return Response.redirect(homeUrl);
+    }
+
+    // If user is on the root path (/), redirect to home
+    if (auth.userId && req.nextUrl.pathname === '/') {
+      const homeUrl = new URL('/home', req.url);
+      return Response.redirect(homeUrl);
     }
   }
 });
 
-// Stop Middleware running on static files and API routes
+// Configure matcher to handle all routes
 export const config = {
-  matcher: [
-    "/((?!.*\\..*|_next).*)",
-    "/",
-    "/(api|trpc)(.*)"
-  ]
+  matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
 }; 

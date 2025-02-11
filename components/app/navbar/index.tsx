@@ -24,8 +24,15 @@ const Navbar = () => {
   };
 
   const handleSignOut = async () => {
-    await signOut();
-    router.push('/login');
+    try {
+      await signOut();
+      // Force a full page redirect to login
+      window.location.href = '/login';
+    } catch (error) {
+      console.error('Error signing out:', error);
+      // Force redirect even if there's an error
+      window.location.href = '/login';
+    }
   };
 
   const getInitials = () => {
@@ -42,7 +49,7 @@ const Navbar = () => {
       const email = user.emailAddresses[0].emailAddress;
       return email.substring(0, 2).toUpperCase();
     }
-    return 'GU'; // Guest User fallback
+    return ''; // Guest User fallback
   };
 
   return (
@@ -109,9 +116,11 @@ const Navbar = () => {
                 <div className="user-name">
                   {user?.firstName 
                     ? `${user.firstName} ${user.lastName || ''}`
-                    : user?.emailAddresses[0]?.emailAddress || 'Guest User'}
+                    : user?.emailAddresses[0]?.emailAddress?.split('@')[0]}
                 </div>
-                <div className="user-email">{user?.emailAddresses[0]?.emailAddress}</div>
+                {user?.emailAddresses[0]?.emailAddress && (
+                  <div className="user-email">{user.emailAddresses[0].emailAddress}</div>
+                )}
               </div>
               <div className="menu-divider"></div>
               <button onClick={handleSignOut} className="sign-out-btn">
